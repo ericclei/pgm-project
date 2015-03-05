@@ -16,7 +16,35 @@ class MatrixFactorizationMovieLens {
     private int uFeatureSize;
     private int iFeatureSize;
 
-    public MatrixFactorizationMovieLens(String userFeatureFilename, String itemFeatureFilename,
+    public DenseMatrix getuFeatureMatrix() {
+		return uFeatureMatrix;
+	}
+
+	public DenseMatrix getiFeatureMatrix() {
+		return iFeatureMatrix;
+	}
+
+	public LinkedSparseMatrix getRelationMatrix() {
+		return relationMatrix;
+	}
+
+	public int getNumUsers() {
+		return numUsers;
+	}
+
+	public int getNumItems() {
+		return numItems;
+	}
+
+	public int getuFeatureSize() {
+		return uFeatureSize;
+	}
+
+	public int getiFeatureSize() {
+		return iFeatureSize;
+	}
+
+	public MatrixFactorizationMovieLens(String userFeatureFilename, String itemFeatureFilename,
                          String relationFilename, String summaryFilename) {
         uFeatureSize = 24; // age, gender, 22 occupations (binary)
         iFeatureSize = 20; // release date, 19 genres (binary)
