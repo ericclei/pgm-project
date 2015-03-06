@@ -14,8 +14,20 @@ public class test {
                 "Data/ml-100k/u.data", "Data/ml-100k/u.info");
         
         //mf.printMatrix();
-        List<Matrix> result = MatrixFactorization.featureEnrichedMatrixFactorization(mf, 10, 1, 10, 1e-6);
+        int latentDim = 10;
+        double stepSize = 1e-13;
+        int maxIter = 10;
+        double eps = 1e-4;
+        List<Matrix> result = MatrixFactorization.featureEnrichedMatrixFactorization(mf, latentDim, stepSize, maxIter, eps);
+        
+        Matrix r = result.get(0);
+        for (int i = 0; i < 10; i++) {
+        	for (int j = 0; j < 10; j++) 
+        		System.out.print(r.get(i, j) + " ");
+        	System.out.println();
+        }
 
-        System.out.println(result.get(0));
+        System.out.println("done");
+
     }
 }
