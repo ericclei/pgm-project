@@ -15,10 +15,11 @@ public class test {
         
         //mf.printMatrix();
         int latentDim = 10;
-        double stepSize = 1e-13;
+        double stepSize = 1e-7;
         int maxIter = 10;
         double eps = 1e-4;
-        List<Matrix> result = MatrixFactorization.featureEnrichedMatrixFactorization(mf, latentDim, stepSize, maxIter, eps);
+        List<Matrix> result = MatrixFactorization.featureEnrichedMatrixFactorization(
+        		mf, latentDim, stepSize, maxIter, eps);
         
         Matrix r = result.get(0);
         for (int i = 0; i < 10; i++) {

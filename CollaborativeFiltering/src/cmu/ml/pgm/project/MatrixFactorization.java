@@ -69,7 +69,7 @@ public final class MatrixFactorization {
 								continue;
 							Vector fi = getRow(f, i);
 							double aVal = (rij - r.get(i, j)) * v.get(j, l);
-							gradA_l.add(new DenseVector(fi).scale(-2 * aVal));
+							gradA_l.add(new DenseVector(fi).scale(-2 * aVal / n / m));
 						}
 					}
 					for (int i = 0; i < df; i++) {
@@ -103,7 +103,7 @@ public final class MatrixFactorization {
 								continue;
 							Vector gj = getRow(g, j);
 							double bVal = (rij - r.get(i, j)) * u.get(i, l);
-							gradB_l.add(new DenseVector(gj).scale(-2 * bVal));
+							gradB_l.add(new DenseVector(gj).scale(-2 * bVal / n / m));
 						}
 					}
 					for (int i = 0; i < dg; i++) {
