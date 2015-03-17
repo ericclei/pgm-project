@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/arpack_combined_all-0.1.jar"/>
+	<classpathentry kind="lib" path="lib/core-1.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/java-logging-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/jniloader-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-over-slf4j-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/lombok-1.14.8.jar"/>
+	<classpathentry kind="lib" path="lib/mtj-1.0.2-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/mtj-1.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/native_ref-java-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/native_system-java-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/netlib-native_ref-linux-armhf-1.1-natives.jar"/>
+	<classpathentry kind="lib" path="lib/netlib-native_ref-linux-i686-1.1-natives.jar"/>
+	<classpathentry kind="lib" path="lib/netlib-native_ref-linux-x86_64-1.1-natives.jar"/>
+	<classpathentry kind="lib" path="lib/netlib-native_ref-osx-x86_64-1.1-natives.jar"/>
+	<classpathentry kind="lib" path="lib/netlib-native_ref-win-i686-1.1-natives.jar"/>
+	<classpathentry kind="lib" path="lib/netlib-native_ref-win-x86_64-1.1-natives.jar"/>
+	<classpathentry kind="lib" path="lib/netlib-native_system-linux-armhf-1.1-natives.jar"/>
+	<classpathentry kind="lib" path="lib/netlib-native_system-linux-i686-1.1-natives.jar"/>
+	<classpathentry kind="lib" path="lib/netlib-native_system-linux-x86_64-1.1-natives.jar"/>
+	<classpathentry kind="lib" path="lib/netlib-native_system-osx-x86_64-1.1-natives.jar"/>
+	<classpathentry kind="lib" path="lib/netlib-native_system-win-i686-1.1-natives.jar"/>
+	<classpathentry kind="lib" path="lib/netlib-native_system-win-x86_64-1.1-natives.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-jdk14-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/ujmp-complete-0.2.5.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
