@@ -6,12 +6,13 @@ import java.util.Random;
 
 import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.DenseVector;
+import no.uib.cipr.matrix.Matrices;
 import no.uib.cipr.matrix.Matrix;
 import no.uib.cipr.matrix.Vector;
 
 
 /**
- * Methods for feature-enriched matrix factorization
+ * Methods for feature-enriched matrix factorization. Static class.
  * @author eric
  *
  */
@@ -25,24 +26,42 @@ public final class MatrixFactorization {
 	 * @param latentDim
 	 * @param maxIter
 	 * @param eps
-	 * @return estimates (R, U, V, A, B) in that order
+	 * @return estimates (R, U, V) 
+	 */
+	public static List<Matrix> matrixFactorization(MatrixFactorizationMovieLens data,
+			int latentDim, double stepSize, int maxIter, double eps) {
+		return matrixFactorizationSubroutine(data, latentDim, stepSize, maxIter, eps, false).subList(0, 3);
+	}
+
+	/**
+	 * 
+	 * @param data
+	 * @param latentDim
+	 * @param maxIter
+	 * @param eps
+	 * @return estimates (R, U, V, A, B) 
 	 */
 	public static List<Matrix> featureEnrichedMatrixFactorization(MatrixFactorizationMovieLens data,
 			int latentDim, double stepSize, int maxIter, double eps) {
+		return matrixFactorizationSubroutine(data, latentDim, stepSize, maxIter, eps, true);
+	}
 
+	private static List<Matrix> matrixFactorizationSubroutine(MatrixFactorizationMovieLens data,
+			int latentDim, double stepSize, int maxIter, double eps, boolean useFeatures) {
 		Matrix f = data.getuFeatureMatrix();
 		Matrix g = data.getiFeatureMatrix();
 		int df = f.numColumns();
 		int dg = g.numColumns();
+		if (!useFeatures) {
+			f = Matrices.identity(df);
+			g = Matrices.identity(dg);
+		}
 		int m = f.numRows();
 		int n = g.numRows();
 		Matrix a = new DenseMatrix(df, latentDim);
 		Matrix b = new DenseMatrix(dg, latentDim);
 		randomlyInitialize(a);
 		randomlyInitialize(b);
-//		setAllValues(a, 1e-1);
-//		setAllValues(b, 1e-1);
-
 
 		int t;
 		// outer loop over both A and B
