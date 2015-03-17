@@ -27,37 +27,37 @@ public class test {
 		int nTest;
 		PrintWriter writer;
 
-		List<Matrix> featuresResult = MatrixFactorization.featureEnrichedMatrixFactorization(
-				mfTrain, latentDim, stepSize, maxIter, eps);
-		Matrix rFeatures = featuresResult.get(0);
-		System.out.println("done with features");
-
-
-		double featuresError = 0;
-		nTest = 0;
-		for (int i = 0; i < mfTest.getNumUsers(); i++)
-			for (int j = 0; j < mfTest.getNumItems(); j++) {
-				if (testR.get(i, j) != 0)
-					nTest++;
-				featuresError += Math.pow(testR.get(i, j) - rFeatures.get(i, j), 2);
-			}
-		featuresError = Math.sqrt(featuresError / nTest);
-		System.out.printf("RMSE with features = %f\n", featuresError);
-
-		System.out.println("ten entries of R with features:");
-		for (int i = 0; i < 10; i++)
-			System.out.print(rFeatures.get(0, i) + " ");
-		System.out.println();
-
-		try {
-			writer = new PrintWriter("output/rFeatures.txt", "UTF-8");
-			writer.println(rFeatures);
-			writer.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
+//		List<Matrix> featuresResult = MatrixFactorization.featureEnrichedMatrixFactorization(
+//				mfTrain, latentDim, stepSize, maxIter, eps);
+//		Matrix rFeatures = featuresResult.get(0);
+//		System.out.println("done with features");
+//
+//
+//		double featuresError = 0;
+//		nTest = 0;
+//		for (int i = 0; i < mfTest.getNumUsers(); i++)
+//			for (int j = 0; j < mfTest.getNumItems(); j++) {
+//				if (testR.get(i, j) != 0)
+//					nTest++;
+//				featuresError += Math.pow(testR.get(i, j) - rFeatures.get(i, j), 2);
+//			}
+//		featuresError = Math.sqrt(featuresError / nTest);
+//		System.out.printf("RMSE with features = %f\n", featuresError);
+//
+//		System.out.println("ten entries of R with features:");
+//		for (int i = 0; i < 10; i++)
+//			System.out.print(rFeatures.get(0, i) + " ");
+//		System.out.println();
+//
+//		try {
+//			writer = new PrintWriter("output/rFeatures.txt", "UTF-8");
+//			writer.println(rFeatures);
+//			writer.close();
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		} catch (UnsupportedEncodingException e) {
+//			e.printStackTrace();
+//		}
 
 		List<Matrix> noFeaturesResult = MatrixFactorization.matrixFactorization(
 				mfTrain, latentDim, stepSize, maxIter, eps);
