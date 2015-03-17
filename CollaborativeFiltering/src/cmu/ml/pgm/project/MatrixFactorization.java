@@ -1,6 +1,7 @@
 package cmu.ml.pgm.project;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -52,14 +53,20 @@ public final class MatrixFactorization {
 		Matrix g = data.getiFeatureMatrix();
 		int df = f.numColumns();
 		int dg = g.numColumns();
-		if (!useFeatures) {
-			f = Matrices.identity(df);
-			g = Matrices.identity(dg);
-		}
 		int m = f.numRows();
 		int n = g.numRows();
 		Matrix a = new DenseMatrix(df, latentDim);
 		Matrix b = new DenseMatrix(dg, latentDim);
+		
+		if (!useFeatures) {
+			df = m;
+			dg = n;
+			f = Matrices.identity(m);
+			g = Matrices.identity(n);
+			a = new DenseMatrix(m, latentDim);
+			b = new DenseMatrix(n, latentDim);
+		}
+
 		randomlyInitialize(a);
 		randomlyInitialize(b);
 
@@ -75,7 +82,7 @@ public final class MatrixFactorization {
 
 			// gradient descent on A
 			for (int tA = 0; tA < maxIter; tA++) {
-				System.out.println("tA = " + tA);
+				System.out.println("\ttA = " + tA);
 				Matrix aNew = new DenseMatrix(a);
 				double maxUpdate = 0;
 				for (int l = 0; l < latentDim; l++) {
@@ -110,7 +117,7 @@ public final class MatrixFactorization {
 
 			// gradient descent on B
 			for (int tB = 0; tB < maxIter; tB++) {
-				System.out.println("tB = " + tB);
+				System.out.println("\ttB = " + tB);
 				Matrix bNew = new DenseMatrix(b);
 				double maxUpdate = 0;
 				for (int l = 0; l < latentDim; l++) {
@@ -155,12 +162,7 @@ public final class MatrixFactorization {
 		Matrix u = matrixMult(f, a);
 		Matrix v = matrixMult(g, b);
 		Matrix r = matrixMult(u, v.transpose(new DenseMatrix(v.numColumns(), v.numRows())));
-		List<Matrix> result = new ArrayList<>();
-		result.add(r);
-		result.add(u);
-		result.add(v);
-		result.add(a);
-		result.add(b);
+		List<Matrix> result = Arrays.asList(r, u, v, a, b);
 
 		return result;
 	}
@@ -177,14 +179,6 @@ public final class MatrixFactorization {
 		return v;
 	}
 
-	static Vector getColumn(Matrix x, int i) {
-		int m = x.numRows();
-		Vector v = new DenseVector(m);
-		for (int j = 0; j < m; j++)
-			v.set(j, x.get(j, i));
-		return v;
-	}
-	
 	/** 
 	 * U(-1, 1)
 	 * @param x
