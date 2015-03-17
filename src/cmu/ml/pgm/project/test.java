@@ -15,7 +15,7 @@ public class test {
 		MatrixFactorizationMovieLens mfTrain
 		= new MatrixFactorizationMovieLens("Data/ml-100k/u.user", "Data/ml-100k/u.item",
 				"Data/ml-100k/u.data.train", "Data/ml-100k/u.info.train");
-
+		mfTrain.printMatrix();
 		int latentDim = 1;
 		double stepSize = 1e-7;
 		int maxIter = 10;
