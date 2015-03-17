@@ -15,10 +15,10 @@ public class test {
 		MatrixFactorizationMovieLens mfTrain
 		= new MatrixFactorizationMovieLens("Data/ml-100k/u.user", "Data/ml-100k/u.item",
 				"Data/ml-100k/u.data.train", "Data/ml-100k/u.info.train");
-//		mfTrain.printMatrix();
-		int latentDim = 1;
-		double stepSize = 1e-1;
-		int maxIter = 10;
+		//		mfTrain.printMatrix();
+		int latentDim = 5;
+		double stepSize = .1;
+		int maxIter = 50;
 		double eps = 1e-5;
 		MatrixFactorizationMovieLens mfTest
 		= new MatrixFactorizationMovieLens("Data/ml-100k/u.user", "Data/ml-100k/u.item",
@@ -27,22 +27,22 @@ public class test {
 		int nTest;
 		PrintWriter writer;
 
-		List<Matrix> featuresResult = MatrixFactorization.featureEnrichedMatrixFactorization(
-				mfTrain, latentDim, stepSize, maxIter, eps);
-		Matrix rFeatures = featuresResult.get(0);
-		System.out.println("done with features");
-
-		boolean doFeaturesMethod = false;
-		boolean doNoFeaturesMethod = true;
+		boolean doFeaturesMethod = true;
+		boolean doNoFeaturesMethod = false;
 		if (doFeaturesMethod) {
 			System.out.println("starting with features");
+			List<Matrix> featuresResult = MatrixFactorization.featureEnrichedMatrixFactorization(
+					mfTrain, latentDim, stepSize, maxIter, eps);
+			Matrix rFeatures = featuresResult.get(0);
+			System.out.println("done with features");
 			double featuresError = 0;
 			nTest = 0;
 			for (int i = 0; i < mfTest.getNumUsers(); i++)
 				for (int j = 0; j < mfTest.getNumItems(); j++) {
-					if (testR.get(i, j) != 0)
+					if (testR.get(i, j) != 0) {
 						nTest++;
-					featuresError += Math.pow(testR.get(i, j) - rFeatures.get(i, j), 2);
+						featuresError += Math.pow(testR.get(i, j) - rFeatures.get(i, j), 2);
+					}
 				}
 			featuresError = Math.sqrt(featuresError / nTest);
 			System.out.printf("RMSE with features = %f\n", featuresError);
@@ -73,9 +73,10 @@ public class test {
 			nTest = 0;
 			for (int i = 0; i < mfTest.getNumUsers(); i++)
 				for (int j = 0; j < mfTest.getNumItems(); j++) {
-					if (testR.get(i, j) != 0)
+					if (testR.get(i, j) != 0) {
 						nTest++;
-					noFeaturesError += Math.pow(testR.get(i, j) - rNoFeatures.get(i, j), 2);
+						noFeaturesError += Math.pow(testR.get(i, j) - rNoFeatures.get(i, j), 2);
+					}
 				}
 			noFeaturesError = Math.sqrt(noFeaturesError / nTest);
 			System.out.printf("RMSE without features = %f\n", noFeaturesError);
