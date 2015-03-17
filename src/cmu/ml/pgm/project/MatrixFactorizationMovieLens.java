@@ -93,7 +93,7 @@ class MatrixFactorizationMovieLens {
                 }
             }
             // Normalize age to have a value between 0 and 1
-            for(int i = 0; i < uFeatureSize; i++) {
+            for(int i = 0; i < uFeatureMatrix.numRows(); i++) {
                 uFeatureMatrix.set(i, 0, uFeatureMatrix.get(i, 0) / maxAge);
             }
             fin.close();
@@ -126,7 +126,7 @@ class MatrixFactorizationMovieLens {
 
             double normalizationConstant = maxYear - minYear;
             // Normalize age to have a value between 0 and 1
-            for(int i = 0; i < iFeatureSize; i++) {
+            for(int i = 0; i < iFeatureMatrix.numRows(); i++) {
                 iFeatureMatrix.set(i, 0, (iFeatureMatrix.get(i, 0) - minYear)/normalizationConstant);
             }
             fin.close();
