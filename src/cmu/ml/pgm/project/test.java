@@ -31,9 +31,9 @@ public class test {
 		boolean doNoFeaturesMethod = false;
 		if (doFeaturesMethod) {
 			System.out.println("starting with features");
-			List<Matrix> featuresResult = MatrixFactorization.featureEnrichedMatrixFactorization(
+			MatrixFactorizationResult featuresResult = MatrixFactorization.factorizeMatrixWithFeatures(
 					mfTrain, latentDim, stepSize, maxIter, eps);
-			Matrix rFeatures = featuresResult.get(0);
+			Matrix rFeatures = featuresResult.getR();
 			System.out.println("done with features");
 			double featuresError = 0;
 			nTest = 0;
@@ -65,9 +65,9 @@ public class test {
 
 		if (doNoFeaturesMethod) {
 			System.out.println("starting without features");
-			List<Matrix> noFeaturesResult = MatrixFactorization.matrixFactorization(
+			MatrixFactorizationResult noFeaturesResult = MatrixFactorization.factorizeMatrix(
 					mfTrain, latentDim, stepSize, maxIter, eps);
-			Matrix rNoFeatures = noFeaturesResult.get(0);
+			Matrix rNoFeatures = noFeaturesResult.getR();
 			System.out.println("done with no features");
 			double noFeaturesError = 0;
 			nTest = 0;
