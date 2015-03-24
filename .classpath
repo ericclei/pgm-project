@@ -9,7 +9,11 @@
 	<classpathentry kind="lib" path="lib/log4j-over-slf4j-1.7.5.jar"/>
 	<classpathentry kind="lib" path="lib/lombok-1.14.8.jar"/>
 	<classpathentry kind="lib" path="lib/mtj-1.0.2-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/mtj-1.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/mtj-1.0.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/eric/Documents/GitHub/pgm-project/lib/mtj-1.0.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/native_ref-java-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/native_system-java-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/netlib-native_ref-linux-armhf-1.1-natives.jar"/>
