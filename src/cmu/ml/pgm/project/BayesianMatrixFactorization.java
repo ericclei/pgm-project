@@ -13,7 +13,7 @@ import no.uib.cipr.matrix.Vector;
 
 /**
  * Methods for feature-enriched matrix factorization. Static class.
- * @author eric
+ * @author dexter
  *
  */
 public final class BayesianMatrixFactorization {

@@ -14,7 +14,7 @@ import no.uib.cipr.matrix.Vector;
 
 /**
  * Methods for feature-enriched matrix factorization. Static class.
- * @author eric
+ * @author dexter
  *
  */
 public final class BaselineMatrixFactorization {
@@ -31,10 +31,12 @@ public final class BaselineMatrixFactorization {
      * @return estimates (R, U, V)
      */
     public static MatrixFactorizationResult factorizeMatrix(MatrixFactorizationMovieLens data,
-                                                            int latentDim, double regCoef, int maxIter, double tol) {
+                                                            int latentDim, double stepsize, double regCoef, int maxIter, double tol) {
         ArrayList<MatrixFactorizationMovieLens.Pair> trainingData = data.getTrainingData();
         int m = data.getNumUsers();
         int n = data.getNumItems();
+        int[] numDataPerUser = data.getNumDataPerUser();
+        int[] numDataPerItem = data.getNumDataPerItem();
         Random rand = new Random(1);
 
         DenseMatrix U = new DenseMatrix(m, latentDim);
@@ -42,23 +44,37 @@ public final class BaselineMatrixFactorization {
         randomlyInitialize(U);
         randomlyInitialize(V);
 
-        for(int t = 0; t < maxIter; t++) {
-            MatrixFactorizationMovieLens.Pair chosen = trainingData.get(rand.nextInt(trainingData.size()));
+        for(int t = 1; t <= maxIter; t++) {
+            int index = rand.nextInt(trainingData.size());
+            MatrixFactorizationMovieLens.Pair chosen = trainingData.get(index);
             Vector Ui = getRow(U, chosen.user_id);
             Vector Vj = getRow(V, chosen.item_id);
             double error = chosen.rating - Ui.dot(Vj);
-
-            Vector Uupdate = Vj.scale(-2 * error).add(Ui.scale(2 * regCoef / Ui.size()));
-            Vector Vupdate = Ui.scale(-2 * error).add(Vj.scale(2 * regCoef / Vj.size()));
+            double learningRate = stepsize;// / (t * t);
+            double scale = 2 * error * learningRate;// * trainingData.size();
+            double regularization = -2 * learningRate * regCoef;// * trainingData.size();
+            Vector Uupdate = Vj.copy().scale(scale).add(Ui.copy().scale(regularization / numDataPerUser[chosen.user_id]));
+            Vector Vupdate = Ui.copy().scale(scale).add(Vj.copy().scale(regularization / numDataPerItem[chosen.item_id]));
             double difference = Uupdate.norm(Vector.Norm.Two) + Vupdate.norm(Vector.Norm.Two);
 
-//            if(difference < tol) {
-//                break;
+            if(difference < tol) {
+                break;
+            }
+
+            addRow(U, Uupdate, chosen.user_id);
+            addRow(V, Vupdate, chosen.item_id);
+//            if (Double.isNaN(Uupdate.norm(Vector.Norm.Two))) {
+//                System.out.println(U);
+//                System.out.println("\n" + t + " " + error + " " + scale + " " + regularization);
+//                System.exit(-1);
 //            }
-
-            setRow(U, Uupdate, chosen.user_id);
-            setRow(V, Vupdate, chosen.item_id);
-
+//            else if (Uupdate.norm(Vector.Norm.Two) > 10) {
+//                System.out.println(Uupdate);
+//                System.out.println("\n" + t + " " + error + " " + scale + " " + regularization);
+//                System.exit(-1);
+//            }
+//            System.out.println(Uupdate + "\n");
+//            System.out.println(V);
         }
 
         return new MatrixFactorizationResult(matrixMult(U, transpose(V)), U, V);
@@ -76,9 +92,9 @@ public final class BaselineMatrixFactorization {
         return v;
     }
 
-    static void setRow(Matrix x, Vector v, int i) {
+    static void addRow(Matrix x, Vector v, int i) {
         for (int j = 0; j < x.numColumns(); j++) {
-            x.set(i, j, v.get(j));
+            x.set(i, j, x.get(i,j) + v.get(j));
         }
     }
 

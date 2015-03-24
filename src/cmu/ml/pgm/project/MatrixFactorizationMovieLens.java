@@ -13,6 +13,8 @@ class MatrixFactorizationMovieLens {
     private DenseMatrix iFeatureMatrix;
     private LinkedSparseMatrix relationMatrix;
     private ArrayList<Pair> trainingData;
+    private int[] numDataPerUser;
+    private int[] numDataPerItem;
     private int numUsers;
     private int numItems;
     private int uFeatureSize;
@@ -45,6 +47,10 @@ class MatrixFactorizationMovieLens {
     public ArrayList<Pair> getTrainingData() {
         return trainingData;
     }
+
+    public int[] getNumDataPerUser() { return numDataPerUser; }
+
+    public int[] getNumDataPerItem() { return numDataPerItem; }
 
 	public int getNumUsers() {
 		return numUsers;
@@ -82,6 +88,8 @@ class MatrixFactorizationMovieLens {
         initializeItemMatrix(itemFeatureFilename);
         relationMatrix = new LinkedSparseMatrix(numUsers, numItems);
         trainingData = new ArrayList<Pair>();
+        numDataPerUser = new int[numUsers];
+        numDataPerItem = new int[numItems];
         initializeRelationMatrix(relationFilename);
     }
 
@@ -160,9 +168,13 @@ class MatrixFactorizationMovieLens {
             BufferedReader fin = new BufferedReader(new FileReader(filename));
             while(fin.ready()) {
                 String[] tokens = fin.readLine().split("\t");
-                relationMatrix.set(Integer.parseInt(tokens[0]) - 1,
-                        Integer.parseInt(tokens[1]) - 1, Integer.parseInt(tokens[2]) / 5.0);
-                trainingData.add(new Pair(Integer.parseInt(tokens[0]) - 1, Integer.parseInt(tokens[1]) - 1, Integer.parseInt(tokens[2]) / 5.0));
+                int user_id = Integer.parseInt(tokens[0]) - 1;
+                int item_id = Integer.parseInt(tokens[1]) - 1;
+                int rating = Integer.parseInt(tokens[2]);
+                relationMatrix.set(user_id, item_id, rating / 5.0);
+                trainingData.add(new Pair(user_id, item_id, rating / 5.0));
+                numDataPerUser[user_id]++;
+                numDataPerItem[item_id]++;
             }
             fin.close();
         } catch (Exception e) {
