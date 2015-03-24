@@ -6,6 +6,8 @@ import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.DenseVector;
 import no.uib.cipr.matrix.Matrix;
 import no.uib.cipr.matrix.Vector;
+import no.uib.cipr.matrix.io.MatrixInfo.MatrixField;
+import no.uib.cipr.matrix.sparse.LinkedSparseMatrix;
 
 
 /**
@@ -40,7 +42,8 @@ public final class MatrixFactorization {
 	 */
 	public static MatrixFactorizationResult factorizeMatrixWithFeatures(MatrixFactorizationMovieLens data,
 			int latentDim, double stepSize, int maxIter, double tol) {
-		Matrix R = data.getRelationMatrix();
+		LinkedSparseMatrix R = data.getRelationMatrix();
+		int nObservedRelations = l0Norm(R);
 		Matrix F = data.getuFeatureMatrix();
 		Matrix G = data.getiFeatureMatrix();
 		int dF = F.numColumns();
@@ -57,63 +60,92 @@ public final class MatrixFactorization {
 		randomlyInitialize(B);
 		double sigma2R = 0, sigma2F = 0, sigma2G = 0;
 
+		// coordinate descent
 		for (int t = 0; t < maxIter; t++) {
-			System.out.printf("t = %d\n", t);
+//			System.out.printf("t = %d\n", t);
 			double overallMaxUpdate = 0;
 			Matrix Rhat = times(U, transpose(V));
-			sigma2R = squaredFrobeniusNorm(minus(R, Rhat)) / m / n;
+			sigma2R = sparseSquaredFrobeniusNormOfDiff(R, Rhat) / nObservedRelations;
 			sigma2F = squaredFrobeniusNorm(minus(F, times(U, A))) / m / dF;
 			sigma2G = squaredFrobeniusNorm(minus(G, times(V, B))) / n / dG;
 
+			// updates A
 			for (int tA = 0; tA < maxIter; tA++) {
-				System.out.printf("\ttA = %d\n", tA);
+//				System.out.printf("\ttA = %d\n", tA);
 				Matrix grad = times(transpose(U), minus(F, times(U, A)));
-				grad = times(grad, 1 / sigma2F);
+				grad.scale(1 / sigma2F);
 				Matrix scaledGrad = times(grad, stepSize);
-				A = minus(A, scaledGrad);
-				double maxUpdate = maxAbsElement(scaledGrad);
+				A.add(-1, scaledGrad);
+				double maxUpdate = scaledGrad.norm(Matrix.Norm.Maxvalue);
 				overallMaxUpdate = Math.max(overallMaxUpdate, maxUpdate);
 				if (maxUpdate < tol)
 					break;
 			}		
+			sigma2F = squaredFrobeniusNorm(minus(F, times(U, A))) / m / dF;
 
+			// updates B
 			for (int tB = 0; tB < maxIter; tB++) {
-				System.out.printf("\ttB = %d\n", tB);
+//				System.out.printf("\ttB = %d\n", tB);
 				Matrix grad = times(transpose(V) , minus(G, times(V, B)));
-				grad = times(grad, 1 / sigma2G);
+				grad.scale(1 / sigma2G);
 				Matrix scaledGrad = times(grad, stepSize);
-				B = minus(B, scaledGrad);
-				double maxUpdate = maxAbsElement(scaledGrad);
+				B.add(-1, scaledGrad);
+				double maxUpdate = scaledGrad.norm(Matrix.Norm.Maxvalue);
 				overallMaxUpdate = Math.max(overallMaxUpdate, maxUpdate);
 				if (maxUpdate < tol)
 					break;
 			}
+			sigma2G = squaredFrobeniusNorm(minus(G, times(V, B))) / n / dG;
 
+			// updates U
 			for (int tU = 0; tU < maxIter; tU++) {
-				System.out.printf("\ttU = %d\n", tU);
-				Matrix grad1 = times(times(minus(R, times(U, transpose(V))), V), 1 / sigma2R);
-				Matrix grad2 = times(times(minus(F, times(U, A)), transpose(A)), 1 / sigma2F);
-				Matrix grad = plus(grad1, grad2);
-				Matrix scaledGrad = times(grad, stepSize);
-				U = minus(U, scaledGrad);
-				double maxUpdate = maxAbsElement(scaledGrad);
+//				System.out.printf("\ttU = %d\n", tU);
+				double maxUpdate = 0;
+				for (int i = 0; i < m; i++) {
+					// updates U_i
+					Vector grad = new DenseVector(latentDim);
+					for (int j = 0; j < n; j++) {
+						double rij = R.get(i, j);
+						double rijHat = Rhat.get(i, j);
+						if (rij != 0)
+							grad.add(times(getRow(V, j), (rij - rijHat)));
+					}
+					Vector scaledGrad = times(grad, stepSize);
+					addToRow(U, i, scaledGrad);
+					maxUpdate = maxAbs(scaledGrad);
+				}
 				overallMaxUpdate = Math.max(overallMaxUpdate, maxUpdate);
 				if (maxUpdate < tol)
 					break;
 			}
+			Rhat = times(U, transpose(V));
+			sigma2R = sparseSquaredFrobeniusNormOfDiff(R, Rhat) / nObservedRelations;
+			sigma2F = squaredFrobeniusNorm(minus(F, times(U, A))) / m / dF;
 
+			// updates V
 			for (int tV = 0; tV < maxIter; tV++) {
-				System.out.printf("\ttV = %d\n", tV);
-				Matrix grad1 = times(times(minus(R, times(U, transpose(V))), V), 1 / sigma2R);
-				Matrix grad2 = times(times(minus(G, times(V, B)), transpose(B)), 1 / sigma2G);
-				Matrix grad = plus(grad1, grad2);
-				Matrix scaledGrad = times(grad, stepSize);
-				V = minus(V, scaledGrad);
-				double maxUpdate = maxAbsElement(scaledGrad);
+//				System.out.printf("\ttV = %d\n", tV);
+				double maxUpdate = 0;
+				for (int j = 0; j < n; j++) {
+					// updates V_j
+					Vector grad = new DenseVector(latentDim);
+					for (int i = 0; i < m; i++) {
+						double rij = R.get(i, j);
+						double rijHat = Rhat.get(i, j);
+						if (rij != 0)
+							grad.add(times(getRow(U, i), (rij - rijHat)));
+					}
+					Vector scaledGrad = times(grad, stepSize);
+					addToRow(V, j, scaledGrad);
+					maxUpdate = maxAbs(scaledGrad);
+				}
 				overallMaxUpdate = Math.max(overallMaxUpdate, maxUpdate);
 				if (maxUpdate < tol)
 					break;
 			}
+			Rhat = times(U, transpose(V));
+			sigma2R = sparseSquaredFrobeniusNormOfDiff(R, Rhat) / nObservedRelations;
+			sigma2G = squaredFrobeniusNorm(minus(G, times(V, B))) / n / dG;
 
 			if (overallMaxUpdate < tol)
 				break;
@@ -124,7 +156,24 @@ public final class MatrixFactorization {
 		}
 
 		Matrix Rhat = times(U, transpose(V));
-		return new MatrixFactorizationResult(Rhat, U, V, A, sigma2R, sigma2F, sigma2G);
+		return new MatrixFactorizationResult(Rhat, U, V, A, B, sigma2R, sigma2F, sigma2G);
+	}
+
+	private static double maxAbs(Vector x) {
+		double m = 0;
+		for (int i = 0; i < x.size(); i++)
+			m = Math.max(m, Math.abs(x.get(i)));
+		return m;
+	}
+
+	private static void addToRow(Matrix x, int i, Vector v) {
+		for (int j = 0; j < x.numColumns(); j++) {
+			x.set(i, j, x.get(i, j) + v.get(j));
+		}
+	}
+
+	private static Vector times(Vector x, double a) {
+		return x.copy().scale(a);
 	}
 
 	static Matrix times(Matrix x, double a) {
@@ -133,6 +182,14 @@ public final class MatrixFactorization {
 
 	static Matrix times(Matrix x, Matrix y) {
 		return x.mult(y, new DenseMatrix(x.numRows(), y.numColumns()));
+	}
+
+	static Vector getColumn(Matrix x, int i) {
+		int n = x.numRows();
+		Vector v = new DenseVector(n);
+		for (int j = 0; j < n; j++)
+			v.set(j, x.get(j, i));
+		return v;
 	}
 
 	static Vector getRow(Matrix x, int i) {
@@ -176,12 +233,25 @@ public final class MatrixFactorization {
 		return Math.pow(x.norm(Matrix.Norm.Frobenius), 2);
 	}
 
-	static double maxAbsElement(Matrix x) {
-		double m = 0;
-		for (int i = 0; i < x.numRows(); i++) 
+	static double sparseSquaredFrobeniusNormOfDiff(LinkedSparseMatrix x, Matrix y) {
+		double norm = 0;
+		for (int i = 0; i < x.numRows(); i++)
+			for (int j = 0; j < x.numColumns(); j++) {
+				double xij = x.get(i, j);
+				if (xij != 0) {
+					norm += Math.pow((xij - y.get(i, j)), 2);
+				}
+			}
+		
+		return norm;
+	}
+	
+	static int l0Norm(Matrix x) {
+		int n = 0;
+		for (int i = 0; i < x.numRows(); i++)
 			for (int j = 0; j < x.numColumns(); j++)
-				m = Math.max(m, Math.abs(x.get(i, j)));
-		return m;
+				n += x.get(i, j) == 0 ? 0 : 1;
+		return n;
 	}
 
 }
