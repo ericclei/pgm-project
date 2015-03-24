@@ -15,6 +15,13 @@ public class MatrixFactorizationResult {
 		sigma2F = sigma2f;
 		sigma2G = sigma2g;
 	}
+
+	public MatrixFactorizationResult(Matrix r, Matrix u, Matrix v) {
+		R = r;
+		U = u;
+		V = v;
+	}
+
 	public Matrix getR() {
 		return R;
 	}
