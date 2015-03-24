@@ -17,8 +17,8 @@ public class test {
 				"Data/ml-100k/u.data.train", "Data/ml-100k/u.info.train");
 		//		mfTrain.printMatrix();
 		int latentDim = 5;
-		double stepSize = .3;
-		double regCoef = 0;
+		double stepSize = .1;
+		double regCoef = .1;
 		int maxIter = 50;
 		double eps = 1e-7;
 		MatrixFactorizationMovieLens mfTest
@@ -33,7 +33,7 @@ public class test {
 		if (doBaselineMethod) {
 			System.out.println("Starting Baseline MF");
 			MatrixFactorizationResult factorizationResult = BaselineMatrixFactorization.factorizeMatrix(
-					mfTrain, latentDim, regCoef, maxIter * mfTrain.getTrainingData().size(), tol);
+					mfTrain, latentDim, stepSize, regCoef, maxIter * mfTrain.getTrainingData().size(), eps);
 			Matrix rBaseline = factorizationResult.getR();
 			System.out.println("Done with Baseline MF");
 			nTest = 0;
