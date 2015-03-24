@@ -5,16 +5,30 @@ import no.uib.cipr.matrix.sparse.LinkedSparseMatrix;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 class MatrixFactorizationMovieLens {
     private DenseMatrix uFeatureMatrix;
     private DenseMatrix iFeatureMatrix;
     private LinkedSparseMatrix relationMatrix;
+    private ArrayList<Pair> trainingData;
     private int numUsers;
     private int numItems;
     private int uFeatureSize;
     private int iFeatureSize;
+
+    public class Pair {
+        int user_id;
+        int item_id;
+        double rating;
+
+        public Pair(int uid, int iid, double rat) {
+            user_id = uid;
+            item_id = iid;
+            rating = rat;
+        }
+    }
 
     public DenseMatrix getuFeatureMatrix() {
 		return uFeatureMatrix;
@@ -27,6 +41,10 @@ class MatrixFactorizationMovieLens {
 	public LinkedSparseMatrix getRelationMatrix() {
 		return relationMatrix;
 	}
+
+    public ArrayList<Pair> getTrainingData() {
+        return trainingData;
+    }
 
 	public int getNumUsers() {
 		return numUsers;
@@ -63,6 +81,7 @@ class MatrixFactorizationMovieLens {
         iFeatureMatrix = new DenseMatrix(numItems, iFeatureSize);
         initializeItemMatrix(itemFeatureFilename);
         relationMatrix = new LinkedSparseMatrix(numUsers, numItems);
+        trainingData = new ArrayList<Pair>();
         initializeRelationMatrix(relationFilename);
     }
 
@@ -143,6 +162,7 @@ class MatrixFactorizationMovieLens {
                 String[] tokens = fin.readLine().split("\t");
                 relationMatrix.set(Integer.parseInt(tokens[0]) - 1,
                         Integer.parseInt(tokens[1]) - 1, Integer.parseInt(tokens[2]) / 5.0);
+                trainingData.add(new Pair(Integer.parseInt(tokens[0]) - 1, Integer.parseInt(tokens[1]) - 1, Integer.parseInt(tokens[2]) / 5.0));
             }
             fin.close();
         } catch (Exception e) {

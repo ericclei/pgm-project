@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jdistlib-0.3.8-bin">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jdistlib-0.3.8-bin.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
