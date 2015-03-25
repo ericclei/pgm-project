@@ -3,21 +3,28 @@ package cmu.ml.pgm.project;
 import no.uib.cipr.matrix.Matrix;
 
 public class MatrixFactorizationResult {
-	private Matrix R, U, V, A, B;
+	private Matrix R;
+	private Matrix[] U, V, A, B;
 	private double sigma2R, sigma2F, sigma2G;
 	public MatrixFactorizationResult(Matrix r, Matrix u, Matrix v, Matrix a, Matrix b,
 			double sigma2r, double sigma2f, double sigma2g) {
 		R = r;
-		U = u;
-		V = v;
-		A = a;
-		B = b;
+		U = new Matrix[]{u};
+		V = new Matrix[]{v};
+		A = new Matrix[]{a};
+		B = new Matrix[]{b};
 		sigma2R = sigma2r;
 		sigma2F = sigma2f;
 		sigma2G = sigma2g;
 	}
 
 	public MatrixFactorizationResult(Matrix r, Matrix u, Matrix v) {
+		R = r;
+		U = new Matrix[]{u};
+		V = new Matrix[]{v};
+	}
+
+	public MatrixFactorizationResult(Matrix r, Matrix[] u, Matrix[] v) {
 		R = r;
 		U = u;
 		V = v;
@@ -26,16 +33,16 @@ public class MatrixFactorizationResult {
 	public Matrix getR() {
 		return R;
 	}
-	public Matrix getU() {
+	public Matrix[] getU() {
 		return U;
 	}
-	public Matrix getV() {
+	public Matrix[] getV() {
 		return V;
 	}
-	public Matrix getA() {
+	public Matrix[] getA() {
 		return A;
 	}
-	public Matrix getB() {
+	public Matrix[] getB() {
 		return B;
 	}
 	public double getSigma2R() {

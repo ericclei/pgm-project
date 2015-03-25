@@ -3,9 +3,9 @@ package cmu.ml.pgm.project;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 
 import no.uib.cipr.matrix.Matrix;
+//import jdistlib.Wishart;
 
 /**
  * Created by dexter on 15. 3. 3..
@@ -29,7 +29,9 @@ public class test {
 		PrintWriter writer;
 
 		boolean doBaselineMethod = false;
-		boolean doFeaturesMethod = true;
+		boolean doFeaturesMethod = false;
+		boolean doBayesian = true;
+		
 		if (doBaselineMethod) {
 			System.out.println("Starting Baseline MF");
 			MatrixFactorizationResult factorizationResult = BaselineMatrixFactorization.factorizeMatrix(
@@ -95,7 +97,35 @@ public class test {
 				}
 			}
 		}
+		
+		if (doBayesian) {
+			System.out.println("starting Bayesian");
+			MatrixFactorizationResult bayesianResult = BayesianMatrixFactorization.factorizeMatrixWithFeatures(mfTrain, latentDim, 20, 0.1);
+			Matrix rFeatures = bayesianResult.getR();
+			System.out.println("done with features");
+			double featuresError = 0;
+			nTest = 0;
+			for (int i = 0; i < mfTest.getNumUsers(); i++)
+				for (int j = 0; j < mfTest.getNumItems(); j++) {
+					if (testR.get(i, j) != 0) {
+						nTest++;
+						featuresError += Math.pow(testR.get(i, j) - rFeatures.get(i, j), 2);
+					}
+				}
+			featuresError = Math.sqrt(featuresError / nTest);
+			System.out.printf("RMSE with features = %f\n", featuresError);
 
+			try {
+				writer = new PrintWriter("output/rBayesian.txt", "UTF-8");
+				writer.println(rFeatures);
+				writer.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			
+			System.out.println(bayesianResult.getU()[20]);
+		}
 	}
-
 }
