@@ -3,7 +3,6 @@ package cmu.ml.pgm.project;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 
 import no.uib.cipr.matrix.Matrix;
 
@@ -28,8 +27,8 @@ public class test {
 		int nTest;
 		PrintWriter writer;
 
-		boolean doBaselineMethod = false;
-		boolean doFeaturesMethod = true;
+		boolean doBaselineMethod = true;
+		boolean doFeaturesMethod = false;
 		if (doBaselineMethod) {
 			System.out.println("Starting Baseline MF");
 			MatrixFactorizationResult factorizationResult = BaselineMatrixFactorization.factorizeMatrix(
