@@ -1,12 +1,15 @@
 package cmu.ml.pgm.project;
 
+import java.util.List;
+
 import no.uib.cipr.matrix.Matrix;
 
 public class MatrixFactorizationResult {
 	private Matrix R, U, V, A, B;
 	private double sigma2R, sigma2F, sigma2G;
+	private List<Matrix> intermediateR;
 	public MatrixFactorizationResult(Matrix r, Matrix u, Matrix v, Matrix a, Matrix b,
-			double sigma2r, double sigma2f, double sigma2g) {
+			double sigma2r, double sigma2f, double sigma2g, List<Matrix> iR) {
 		R = r;
 		U = u;
 		V = v;
@@ -15,12 +18,17 @@ public class MatrixFactorizationResult {
 		sigma2R = sigma2r;
 		sigma2F = sigma2f;
 		sigma2G = sigma2g;
+		intermediateR = iR;
 	}
 
 	public MatrixFactorizationResult(Matrix r, Matrix u, Matrix v) {
 		R = r;
 		U = u;
 		V = v;
+	}
+
+	public List<Matrix> getIntermediateR() {
+		return intermediateR;
 	}
 
 	public Matrix getR() {

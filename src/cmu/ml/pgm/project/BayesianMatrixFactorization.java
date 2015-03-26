@@ -1,12 +1,9 @@
 package cmu.ml.pgm.project;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.DenseVector;
-import no.uib.cipr.matrix.Matrices;
 import no.uib.cipr.matrix.Matrix;
 import no.uib.cipr.matrix.Vector;
 

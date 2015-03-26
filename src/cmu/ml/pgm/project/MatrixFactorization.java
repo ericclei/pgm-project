@@ -1,12 +1,13 @@
 package cmu.ml.pgm.project;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.DenseVector;
 import no.uib.cipr.matrix.Matrix;
 import no.uib.cipr.matrix.Vector;
-import no.uib.cipr.matrix.io.MatrixInfo.MatrixField;
 import no.uib.cipr.matrix.sparse.LinkedSparseMatrix;
 
 
@@ -38,6 +39,7 @@ public final class MatrixFactorization {
 	 * @param latentDim
 	 * @param maxIter
 	 * @param tol
+	 * @param returnIntermediate whether to attach Rhat after each full round of coordinate descent
 	 * @return estimates (R, U, V, A, B, sigma_R^2, sigma_F^2, sigma_G^2) 
 	 */
 	public static MatrixFactorizationResult factorizeMatrixWithFeatures(MatrixFactorizationMovieLens data,
@@ -59,6 +61,7 @@ public final class MatrixFactorization {
 		randomlyInitialize(A);
 		randomlyInitialize(B);
 		double sigma2R = 0, sigma2F = 0, sigma2G = 0;
+		List<Matrix> iR = new ArrayList<>();
 
 		// coordinate descent
 		for (int t = 0; t < maxIter; t++) {
@@ -146,6 +149,7 @@ public final class MatrixFactorization {
 			Rhat = times(U, transpose(V));
 			sigma2R = sparseSquaredFrobeniusNormOfDiff(R, Rhat) / nObservedRelations;
 			sigma2G = squaredFrobeniusNorm(minus(G, times(V, B))) / n / dG;
+			iR.add(Rhat);
 
 			if (overallMaxUpdate < tol)
 				break;
@@ -156,7 +160,7 @@ public final class MatrixFactorization {
 		}
 
 		Matrix Rhat = times(U, transpose(V));
-		return new MatrixFactorizationResult(Rhat, U, V, A, B, sigma2R, sigma2F, sigma2G);
+        return new MatrixFactorizationResult(Rhat, U, V, A, B, sigma2R, sigma2F, sigma2G, iR);
 	}
 
 	private static double maxAbs(Vector x) {
