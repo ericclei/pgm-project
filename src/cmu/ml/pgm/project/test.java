@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
 import no.uib.cipr.matrix.Matrix;
+//import jdistlib.Wishart;
 
 /**
  * Created by dexter on 15. 3. 3..
@@ -16,7 +17,7 @@ public class test {
 				"Data/ml-100k/u.data.train", "Data/ml-100k/u.info.train");
 		//		mfTrain.printMatrix();
 		int latentDim = 5;
-		double stepSize = 1e-1;
+		double stepSize = .1;
 		double regCoef = .1;
 		int maxIter = 20;
 		double tol = 1e-7;
@@ -29,6 +30,8 @@ public class test {
 
 		boolean doBaselineMethod = true;
 		boolean doFeaturesMethod = false;
+		boolean doBayesian = true;
+		
 		if (doBaselineMethod) {
 			for (int d = 1; d <= 10; d++) {
 				System.out.println("Starting Baseline MF");
@@ -98,7 +101,35 @@ public class test {
 			}
 			//			}
 		}
+		
+		if (doBayesian) {
+			System.out.println("starting Bayesian");
+			MatrixFactorizationResult bayesianResult = BayesianMatrixFactorization.factorizeMatrixWithFeatures(mfTrain, latentDim, 20, 0.1);
+			Matrix rFeatures = bayesianResult.getR();
+			System.out.println("done with features");
+			double featuresError = 0;
+			nTest = 0;
+			for (int i = 0; i < mfTest.getNumUsers(); i++)
+				for (int j = 0; j < mfTest.getNumItems(); j++) {
+					if (testR.get(i, j) != 0) {
+						nTest++;
+						featuresError += Math.pow(testR.get(i, j) - rFeatures.get(i, j), 2);
+					}
+				}
+			featuresError = Math.sqrt(featuresError / nTest);
+			System.out.printf("RMSE with features = %f\n", featuresError);
 
+			try {
+				writer = new PrintWriter("output/rBayesian.txt", "UTF-8");
+				writer.println(rFeatures);
+				writer.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			
+			System.out.println(bayesianResult.getU()[20]);
+		}
 	}
-
 }
