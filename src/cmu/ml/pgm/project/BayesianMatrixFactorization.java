@@ -10,6 +10,7 @@ import gov.sandia.cognition.statistics.distribution.MultivariateGaussian;
 
 import java.util.Random;
 
+import no.uib.cipr.matrix.Matrices;
 import no.uib.cipr.matrix.Matrix;
 
 
@@ -76,7 +77,7 @@ public final class BayesianMatrixFactorization {
 
 //		numSamples = 1;
 		for(int t = 0; t < numSamples + numBuffer; t++) {
-			System.out.println("Sample: " + (t + 1));
+//			System.out.println("Sample: " + (t + 1));
 			//Sample Hyperparams - can be done in parallel
 			sampleHyperparams(U[t], hpU, t);
 			sampleHyperparams(V[t], hpV, t);
@@ -152,6 +153,24 @@ public final class BayesianMatrixFactorization {
     	}
     }
     
+    static DenseVector average(DenseMatrix x) {
+    	DenseVector result = vfactory.createVector(x.getNumColumns());
+    	for (int i = 0; i < x.getNumRows(); i++) {
+    		result.plusEquals(x.getRow(i));
+    	}
+    	result.scaleEquals(1.0/x.getNumRows());
+    	return result;
+    }
+
+    static DenseMatrix covariance(DenseMatrix x, DenseVector mu) {
+    	DenseMatrix result = mfactory.createMatrix(x.getNumColumns(), x.getNumColumns());
+    	for (int i = 0; i < x.getNumRows(); i++) {
+    		DenseVector diff = (DenseVector) x.getRow(i).minus(mu);
+    		result.plusEquals(diff.outerProduct(diff));
+    	}
+    	return result;
+    }
+    
     static Matrix matrixMult(Matrix x, Matrix y) {
         return x.mult(y, new no.uib.cipr.matrix.DenseMatrix(x.numRows(), y.numColumns()));
     }
@@ -181,6 +200,6 @@ public final class BayesianMatrixFactorization {
     }
 
     static Matrix transpose(Matrix x) {
-        return x.transpose(new DenseMatrix(x.numColumns(), x.numRows()));
+        return x.transpose(new no.uib.cipr.matrix.DenseMatrix(x.numColumns(), x.numRows()));
     }
 }

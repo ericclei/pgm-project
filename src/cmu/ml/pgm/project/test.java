@@ -28,7 +28,7 @@ public class test {
 		int nTest;
 		PrintWriter writer;
 
-		boolean doBaselineMethod = true;
+		boolean doBaselineMethod = false;
 		boolean doFeaturesMethod = false;
 		boolean doBayesian = true;
 		
@@ -104,32 +104,31 @@ public class test {
 		
 		if (doBayesian) {
 			System.out.println("starting Bayesian");
-			MatrixFactorizationResult bayesianResult = BayesianMatrixFactorization.factorizeMatrixWithFeatures(mfTrain, latentDim, 20, 0.1);
-			Matrix rFeatures = bayesianResult.getR();
-			System.out.println("done with features");
-			double featuresError = 0;
-			nTest = 0;
-			for (int i = 0; i < mfTest.getNumUsers(); i++)
-				for (int j = 0; j < mfTest.getNumItems(); j++) {
-					if (testR.get(i, j) != 0) {
-						nTest++;
-						featuresError += Math.pow(testR.get(i, j) - rFeatures.get(i, j), 2);
+			for(latentDim = 2; latentDim <= 10; latentDim++) {
+				MatrixFactorizationResult bayesianResult = BayesianMatrixFactorization.factorizeMatrixWithFeatures(mfTrain, latentDim, 20, 0.1);
+				Matrix rFeatures = bayesianResult.getR();
+				System.out.println("done with features");
+				double featuresError = 0;
+				nTest = 0;
+				for (int i = 0; i < mfTest.getNumUsers(); i++)
+					for (int j = 0; j < mfTest.getNumItems(); j++) {
+						if (testR.get(i, j) != 0) {
+							nTest++;
+							featuresError += Math.pow(testR.get(i, j) - rFeatures.get(i, j), 2);
+						}
 					}
-				}
-			featuresError = Math.sqrt(featuresError / nTest);
-			System.out.printf("RMSE with features = %f\n", featuresError);
-
-			try {
-				writer = new PrintWriter("output/rBayesian.txt", "UTF-8");
-				writer.println(rFeatures);
-				writer.close();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				featuresError = Math.sqrt(featuresError / nTest);
+				System.out.printf("Dim: " + latentDim + ", RMSE Bayesian = %f\n", featuresError);
 			}
-			
-			System.out.println(bayesianResult.getU()[20]);
+//			try {
+//				writer = new PrintWriter("output/rBayesian.txt", "UTF-8");
+//				writer.println(rFeatures);
+//				writer.close();
+//			} catch (FileNotFoundException e) {
+//				e.printStackTrace();
+//			} catch (UnsupportedEncodingException e) {
+//				e.printStackTrace();
+//			}
 		}
 	}
 }
