@@ -93,6 +93,10 @@ class MatrixFactorizationMovieLens {
         initializeRelationMatrix(relationFilename);
     }
 
+	/**
+	 * 0: age | 1: gender==M | 2-end: occupation indicator
+	 * @param filename
+	 */
     public void initializeUserMatrix(String filename) {
         try {
             BufferedReader fin = new BufferedReader(new FileReader(filename));
@@ -130,6 +134,10 @@ class MatrixFactorizationMovieLens {
         }
     }
 
+    /**
+     * 0: year | 1-end: genre indicator
+     * @param filename
+     */
     public void initializeItemMatrix(String filename) {
         try {
             BufferedReader fin = new BufferedReader(new FileReader(filename));
