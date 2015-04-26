@@ -19,7 +19,7 @@ public class test {
 		int latentDim = 3;
 		double stepSize = 1e-4;
 		double regCoef = .1;
-		int maxIter = 20;
+		int maxIter = 10;
 		double tol = 1e-6;
 		MatrixFactorizationMovieLens mfTest
 		= new MatrixFactorizationMovieLens("Data/ml-100k/u.user", "Data/ml-100k/u.item",

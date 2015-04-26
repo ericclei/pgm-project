@@ -10,9 +10,9 @@ public class CollectiveTest {
 				"Data/ml-100k/u.data.train", "Data/ml-100k/u.info.train");
 		// mfTrain.printMatrix();
 		int latentDim = 3;
-		double step = 1e-4;
+		double step = 1e-5;
 		int maxIterOuter = 10;
-		int maxIterInner = 10;
+		int maxIterInner = 20;
 		CollectiveMatrixFactorizationDataset mfTest = new MatrixFactorizationMovieLens(
 				"Data/ml-100k/u.user", "Data/ml-100k/u.item",
 				"Data/ml-100k/u.data.test", "Data/ml-100k/u.info.test");

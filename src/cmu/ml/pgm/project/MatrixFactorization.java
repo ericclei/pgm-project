@@ -93,7 +93,7 @@ public final class MatrixFactorization {
 			for (int tA = 0; tA < maxIter; tA++) {
 				// System.out.printf("\ttA = %d\n", tA);
 				Matrix grad = times(transpose(U), minus(Fn, times(U, An)));
-				grad.scale(-1 / sigma2F);
+				grad.scale(1 / sigma2F);
 				Matrix scaledGrad = times(grad, stepSize);
 				An.add(scaledGrad);
 				double maxUpdate = scaledGrad.norm(Matrix.Norm.Maxvalue);
@@ -107,7 +107,7 @@ public final class MatrixFactorization {
 			for (int tB = 0; tB < maxIter; tB++) {
 				// System.out.printf("\ttB = %d\n", tB);
 				Matrix grad = times(transpose(V), minus(Gn, times(V, Bn)));
-				grad.scale(-1 / sigma2G);
+				grad.scale(1 / sigma2G);
 				Matrix scaledGrad = times(grad, stepSize);
 				Bn.add(scaledGrad);
 				double maxUpdate = scaledGrad.norm(Matrix.Norm.Maxvalue);

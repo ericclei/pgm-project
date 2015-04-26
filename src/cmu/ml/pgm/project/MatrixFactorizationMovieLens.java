@@ -310,7 +310,7 @@ class MatrixFactorizationMovieLens implements
 	@Override
 	public Matrix getBernoulliFeatures(int s) {
 		if (s == 0)
-			return new DenseMatrix(removeColumn(getuFeatureMatrix(), 0));
+			return uFeatureMatrix;
 		else
 			return new DenseMatrix(removeColumn(getiFeatureMatrix(), 0));
 	}
@@ -318,7 +318,7 @@ class MatrixFactorizationMovieLens implements
 	@Override
 	public Matrix getNormalFeatures(int s) {
 		if (s == 0)
-			return new DenseMatrix(getColumn(getuFeatureMatrix(), 0));
+			return new DenseMatrix(numUsers, 0);
 		else
 			return new DenseMatrix(getColumn(getiFeatureMatrix(), 0));
 	}
@@ -330,12 +330,12 @@ class MatrixFactorizationMovieLens implements
 
 	@Override
 	public int getNumBernoulliFeatures(int s) {
-		return s == 0 ? getuFeatureSize() - 1 : getiFeatureSize() - 1;
+		return s == 0 ? getuFeatureSize() : getiFeatureSize() - 1;
 	}
 
 	@Override
 	public int getNumNormalFeatures(int s) {
-		return 1;
+		return s == 0 ? 0 : 1;
 	}
 
 	@Override
