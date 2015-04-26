@@ -16,11 +16,11 @@ public class test {
 		= new MatrixFactorizationMovieLens("Data/ml-100k/u.user", "Data/ml-100k/u.item",
 				"Data/ml-100k/u.data.train", "Data/ml-100k/u.info.train");
 		//		mfTrain.printMatrix();
-		int latentDim = 5;
+		int latentDim = 3;
 		double stepSize = 1e-4;
 		double regCoef = .1;
-		int maxIter = 200;
-		double tol = 1e-12;
+		int maxIter = 20;
+		double tol = 1e-6;
 		MatrixFactorizationMovieLens mfTest
 		= new MatrixFactorizationMovieLens("Data/ml-100k/u.user", "Data/ml-100k/u.item",
 				"Data/ml-100k/u.data.test", "Data/ml-100k/u.info.test");
@@ -29,7 +29,7 @@ public class test {
 		PrintWriter writer;
 
 		boolean doBaselineMethod = false;
-		boolean doFeaturesMethod = true;
+		boolean doFeaturesMethod = true; // rmse=.19
 		boolean doBayesian = false;
 		
 		if (doBaselineMethod) {

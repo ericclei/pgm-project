@@ -106,8 +106,7 @@ public class MatrixMethods {
 		return Math.pow(x.norm(Matrix.Norm.Frobenius), 2);
 	}
 
-	static double sparseSquaredFrobeniusNormOfDiff(LinkedSparseMatrix x,
-			Matrix y) {
+	static double sparseSquaredFrobeniusNormOfDiff(Matrix x, Matrix y) {
 		double norm = 0;
 		for (int i = 0; i < x.numRows(); i++)
 			for (int j = 0; j < x.numColumns(); j++) {
@@ -127,10 +126,10 @@ public class MatrixMethods {
 				n += x.get(i, j) == 0 ? 0 : 1;
 		return n;
 	}
-	
+
 	static void bound(Matrix x, double min, double max) {
 		for (int i = 0; i < x.numRows(); i++)
 			for (int j = 0; j < x.numColumns(); j++)
-				x.set(i, j, Math.max(min, Math.min(max, x.get(i,j))));
+				x.set(i, j, Math.max(min, Math.min(max, x.get(i, j))));
 	}
 }
