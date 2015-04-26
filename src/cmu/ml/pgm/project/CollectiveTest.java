@@ -6,22 +6,22 @@ public class CollectiveTest {
 
 	public static void main(String[] args) {
 		CollectiveMatrixFactorizationDataset mfTrain = new MatrixFactorizationMovieLens(
-				"Data/ml-100k/u.user", "Data/ml-100k/u.item",
-				"Data/ml-100k/u.data.train", "Data/ml-100k/u.info.train");
+				"Data/ml-1m/users.dat", "Data/ml-1m/movies.dat",
+				"Data/ml-1m/ratings.train.dat", "Data/ml-1m/info.train", 1);
 		// mfTrain.printMatrix();
 		int latentDim = 3;
-		double step = 1e-5;
-		int maxIterOuter = 50;
+		double step = 1e-6;
+		int maxIterOuter = 10;
 		int maxIterInner = 20;
 		CollectiveMatrixFactorizationDataset mfTest = new MatrixFactorizationMovieLens(
-				"Data/ml-100k/u.user", "Data/ml-100k/u.item",
-				"Data/ml-100k/u.data.test", "Data/ml-100k/u.info.test");
+				"Data/ml-1m/users.dat", "Data/ml-1m/movies.dat",
+				"Data/ml-1m/ratings.test.dat", "Data/ml-1m/info.test", 1);
 		Matrix testR = mfTest.getRelations(0, 0);
 
 		System.out.println("starting with features");
 		CollectiveMatrixFactorizationResult featuresResult = CollectiveMatrixFactorization
-				.factorizeMatricesWithFeatures(mfTrain, latentDim, maxIterOuter, maxIterInner,
-						step);
+				.factorizeMatricesWithFeatures(mfTrain, latentDim,
+						maxIterOuter, maxIterInner, step);
 		System.out.println("done with features");
 		for (int k = 0; k < featuresResult.getNumIntermediate(); k++) {
 			Matrix rFeatures = featuresResult.getIntermediateRelations(k, 0, 1);

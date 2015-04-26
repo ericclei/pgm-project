@@ -258,8 +258,11 @@ class MatrixFactorizationMovieLens implements
 			double normalizationConstant = maxYear - minYear;
 			// Normalize age to have a value between 0 and 1
 			for (int i = 0; i < iFeatureMatrix.numRows(); i++) {
-				iFeatureMatrix.set(i, 0, (iFeatureMatrix.get(i, 0) - minYear)
-						/ normalizationConstant);
+				if (iFeatureMatrix.get(i, 0) == 0)
+					iFeatureMatrix.set(i, 0, .5);
+				else
+					iFeatureMatrix.set(i, 0, (iFeatureMatrix.get(i, 0) - minYear)
+							/ normalizationConstant);
 			}
 			fin.close();
 		} catch (Exception e) {
