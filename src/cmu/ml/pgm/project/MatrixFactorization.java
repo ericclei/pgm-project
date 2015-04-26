@@ -77,7 +77,7 @@ public final class MatrixFactorization {
 		randomlyInitialize(Bn);
 		randomlyInitialize(Bb);
 		double sigma2R = 0, sigma2F = 0, sigma2G = 0;
-		List<Matrix> iR = new ArrayList<>();
+		List<Matrix> iR = new ArrayList<Matrix>();
 
 		// coordinate descent
 		for (int t = 0; t < maxIter; t++) {

@@ -33,7 +33,6 @@
 	<classpathentry kind="lib" path="lib/ujmp-complete-0.2.5.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/jdistlib-0.3.8-bin.jar"/>
-	<classpathentry kind="lib" path="/Users/dexter/Documents/CMU/10-708/Project/pgm-project/lib/commons-math3-3.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/cognitive-foundry-3.3.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
