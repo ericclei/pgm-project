@@ -8,11 +8,11 @@ import gov.sandia.cognition.math.matrix.mtj.DenseVectorFactoryMTJ;
 import gov.sandia.cognition.statistics.distribution.InverseWishartDistribution;
 import gov.sandia.cognition.statistics.distribution.MultivariateGaussian;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import no.uib.cipr.matrix.Matrices;
 import no.uib.cipr.matrix.Matrix;
-
 
 /**
  * Methods for feature-enriched matrix factorization. Static class.
@@ -20,22 +20,21 @@ import no.uib.cipr.matrix.Matrix;
  *
  */
 public final class BayesianMatrixFactorization {
-
     private static final Random rand = new Random(1);
     private static final DenseMatrixFactoryMTJ mfactory = new DenseMatrixFactoryMTJ();
-	private static final DenseVectorFactoryMTJ vfactory = new DenseVectorFactoryMTJ(); 
+	private static final DenseVectorFactoryMTJ vfactory = new DenseVectorFactoryMTJ();
 	
-	private static class Hyperparams {
+	private static class Statistics {
 		DenseVector mu;
 		DenseMatrix cov;
 		
-		Hyperparams(gov.sandia.cognition.math.matrix.Vector mu_i, 
-				gov.sandia.cognition.math.matrix.Matrix cov_i) {
+		Statistics(gov.sandia.cognition.math.matrix.Vector mu_i,
+				   gov.sandia.cognition.math.matrix.Matrix cov_i) {
 			mu = (DenseVector) mu_i.clone();
 			cov = (DenseMatrix) cov_i.clone();
 		}
 	}
-	
+
     private BayesianMatrixFactorization() {}
 
     /**
@@ -55,7 +54,7 @@ public final class BayesianMatrixFactorization {
 		int dG = G.numColumns();
 		int m = F.numRows();
 		int n = G.numRows();
-		int numBuffer = 0;
+		int numBuffer = 10;
 		int length = numSamples + numBuffer + 1;
 		Matrix[] U = new Matrix[length];
 		U[0] = new no.uib.cipr.matrix.DenseMatrix(m, latentDim);
@@ -70,24 +69,39 @@ public final class BayesianMatrixFactorization {
 		randomlyInitialize(A[0]);
 		randomlyInitialize(B[0]);
 
-		Hyperparams[] hpU = new Hyperparams[length];
-		Hyperparams[] hpV = new Hyperparams[length];
-		Hyperparams[] hpA = new Hyperparams[length];
-		Hyperparams[] hpB = new Hyperparams[length];
+		Statistics[] hpU = new Statistics[length];
+		Statistics[] hpV = new Statistics[length];
+		Statistics[] hpA = new Statistics[length];
+		Statistics[] hpB = new Statistics[length];
+
+		Statistics[] psU = null, psV = null, psA = null, psB = null;
 
 //		numSamples = 1;
 		for(int t = 0; t < numSamples + numBuffer; t++) {
-//			System.out.println("Sample: " + (t + 1));
-			//Sample Hyperparams - can be done in parallel
+			System.out.println("Sample: " + (t + 1));
+			//Sample HyperparStatisticse done in parallel
 			sampleHyperparams(U[t], hpU, t);
 			sampleHyperparams(V[t], hpV, t);
 			sampleHyperparams(A[t], hpA, t);
 			sampleHyperparams(B[t], hpB, t);
+
+			if(t == 0) {
+				psA = initializePosteriorStatistics(hpA[t], A[t], F, U[t], null, null, alpha, data.getuFeatureType());
+				psB = initializePosteriorStatistics(hpB[t], B[t], G, V[t], null, null, alpha, data.getiFeatureType());
+				psU = initializePosteriorStatistics(hpU[t], U[t], F, A[t], R, V[t], alpha, data.getuFeatureType());
+				psV = initializePosteriorStatistics(hpV[t], V[t], G, B[t], transpose(R), U[t], alpha, data.getiFeatureType());
+			}
+//			//Sample latent variables
+			sampleLatentVariables(hpA[t], A, psA, t + 1, F, U[t], null, null, alpha, data.getuFeatureType());
+			sampleLatentVariables(hpB[t], B, psB, t + 1, G, V[t], null, null, alpha, data.getiFeatureType());
+			sampleLatentVariables(hpU[t], U, psU, t + 1, F, A[t + 1], R, V[t], alpha, data.getuFeatureType());
+			sampleLatentVariables(hpV[t], V, psV, t + 1, G, B[t + 1], transpose(R), U[t + 1], alpha, data.getiFeatureType());
+
 			//Sample latent variables
-			sampleLatentVariables(hpA[t], A, t + 1, F, U[t], null, null, alpha);
-			sampleLatentVariables(hpB[t], B, t + 1, G, V[t], null, null, alpha);
-			sampleLatentVariables(hpU[t], U, t + 1, F, A[t + 1], R, V[t], alpha);
-			sampleLatentVariables(hpV[t], V, t + 1, G, B[t + 1], transpose(R), U[t + 1], alpha);
+//			sampleLatentVariables(hpA[t], A, t + 1, F, U[t], null, null, alpha, data.getuFeatureType());
+//			sampleLatentVariables(hpB[t], B, t + 1, G, V[t], null, null, alpha, data.getiFeatureType());
+//			sampleLatentVariables(hpU[t], U, t + 1, F, A[t + 1], R, V[t], alpha, data.getuFeatureType());
+//			sampleLatentVariables(hpV[t], V, t + 1, G, B[t + 1], transpose(R), U[t + 1], alpha, data.getiFeatureType());
 		}
 		
 		Matrix result = new no.uib.cipr.matrix.DenseMatrix(m, n);
@@ -97,7 +111,7 @@ public final class BayesianMatrixFactorization {
         return new MatrixFactorizationResult(result.scale(1.0/numSamples), U, V);
     }
     
-    static void sampleHyperparams(Matrix Fin, Hyperparams[] hp, int t) {
+    static void sampleHyperparams(Matrix Fin, Statistics[] hp, int t) {
     	DenseMatrix F = mfactory.copyArray(Matrices.getArray(Fin));
     	DenseVector Fbar = average(F); //Sample mean
     	DenseMatrix S = covariance(F, Fbar); //Sample covariance
@@ -108,10 +122,10 @@ public final class BayesianMatrixFactorization {
     	InverseWishartDistribution iw = new InverseWishartDistribution(Psi, latentDim + n);
 		DenseMatrix cov = (DenseMatrix) iw.sample(rand); //Sample covariance matrix from Wishart distribution
 		MultivariateGaussian normal = new MultivariateGaussian(Fbar.scale(n / (1.0 + n)), cov.scale(1.0/(1 + n)));
-		hp[t] = new Hyperparams(normal.sample(rand), cov); //Sample mean from Multivariate Gaussian distribution
+		hp[t] = new Statistics(normal.sample(rand), cov); //Sample mean from Multivariate Gaussian distribution
     }
     
-    static void sampleLatentVariables(Hyperparams hpin, Matrix[] F, int t, Matrix RF, Matrix Ain, Matrix R, Matrix Ein, double alpha) {
+    static void sampleLatentVariables(Statistics hpin, Matrix[] F, int t, Matrix RF, Matrix Ain, Matrix R, Matrix Ein, double alpha, ArrayList<String> featureType) {
     	F[t] = new no.uib.cipr.matrix.DenseMatrix(F[t-1].numRows(), F[t-1].numColumns());
     	DenseMatrix A = mfactory.copyArray(Matrices.getArray(Ain));
     	DenseMatrix E = null;
@@ -140,7 +154,7 @@ public final class BayesianMatrixFactorization {
     		}
     		if(E != null) {
     			for(int j = 0; j < E.getNumRows(); j++) {
-    				if(R.get(i, j) > 0) {
+					if (R.get(i, j) > 0) {
     					prec_ind.plusEquals(E.getRow(j).outerProduct(E.getRow(j)).scale(alpha));
     					mu.plusEquals(E.getRow(j).scale(alpha * R.get(i, j)));
     				}
@@ -149,9 +163,142 @@ public final class BayesianMatrixFactorization {
     		DenseMatrix cov_ind = (DenseMatrix) prec_ind.inverse();
     		mu = (DenseVector) mu.times(cov_ind);
     		MultivariateGaussian normal = new MultivariateGaussian(mu, cov_ind);
+			System.out.println(mu);
     		setRow(F[t], (DenseVector) normal.sample(rand), i);
     	}
     }
+
+	static void sampleLatentVariables(Statistics hpin, Matrix[] F,
+									  Statistics[] ps, int t, Matrix RF, Matrix Ain, Matrix R, Matrix Ein,
+									  double alpha, ArrayList<String> featureType) {
+		F[t] = new no.uib.cipr.matrix.DenseMatrix(F[t-1].numRows(), F[t-1].numColumns());
+		DenseMatrix oldF = mfactory.copyArray(Matrices.getArray(F[t-1]));
+		DenseMatrix A = mfactory.copyArray(Matrices.getArray(Ain));
+		DenseMatrix E = null;
+		if(Ein != null) E = mfactory.copyArray(Matrices.getArray(Ein));
+
+		for(int i = 0; i < F[t].numRows(); i++) {
+			MultivariateGaussian oldDist = new MultivariateGaussian(ps[i].mu, ps[i].cov);
+			DenseVector newFi = (DenseVector) oldDist.sample(rand);
+			Statistics postStat = getPosteriorStatistics(hpin, newFi, i, RF, A, R, E, alpha, featureType); // Here mu = grad, cov = - Hessian inverse
+			double eta = rand.nextDouble();
+			postStat.mu = (DenseVector) newFi.minus(postStat.cov.times(postStat.mu).scale(eta));
+
+			DenseVector oldFi = oldF.getRow(i);
+			double acceptanceProbability = getLogPosteriorProbability(hpin, newFi, i, RF, A, R, E, alpha, featureType)
+					- getLogPosteriorProbability(hpin, oldFi, i, RF, A, R, E, alpha, featureType);
+			MultivariateGaussian newDist = new MultivariateGaussian(postStat.mu, postStat.cov);
+			acceptanceProbability = Math.exp(acceptanceProbability) * newDist.getProbabilityFunction().evaluate(oldFi)
+					/ oldDist.getProbabilityFunction().evaluate(newFi);
+
+			if(rand.nextDouble() < acceptanceProbability) {
+				ps[i] = postStat;
+				setRow(F[t], newFi, i);
+			} else {
+				setRow(F[t], oldFi, i);
+			}
+		}
+	}
+
+	static Statistics[] initializePosteriorStatistics(Statistics hpin, Matrix Fin, Matrix RF, Matrix Ain, Matrix R,
+													  Matrix Ein, double alpha, ArrayList<String> featureType) {
+		Statistics[] result = new Statistics[Fin.numRows()];
+		DenseMatrix F = mfactory.copyArray(Matrices.getArray(Fin));
+		DenseMatrix A = mfactory.copyArray(Matrices.getArray(Ain));
+		DenseMatrix E = null;
+		if(Ein != null) E = mfactory.copyArray(Matrices.getArray(Ein));
+		for(int i = 0; i < Fin.numRows(); i++) {
+			result[i] = initializePosteriorStatistics(hpin, F.getRow(i), i, RF, A, R, E, alpha, featureType);
+		}
+		return result;
+	}
+
+	static Statistics initializePosteriorStatistics(Statistics hpin, DenseVector F, int id, Matrix RF, DenseMatrix A,
+													Matrix R, DenseMatrix E, double alpha, ArrayList<String> featureType) {
+		Statistics result = getPosteriorStatistics(hpin, F, id, RF, A, R, E, alpha, featureType);
+		result.mu = (DenseVector) F.minus(result.cov.times(result.mu).scale(rand.nextDouble()));
+		return result;
+	}
+
+	static Statistics getPosteriorStatistics(Statistics hpin, DenseVector F, int id, Matrix RF, DenseMatrix A,
+											 Matrix R, DenseMatrix E, double alpha, ArrayList<String> featureType) {
+		DenseVector pMu = vfactory.createVector(F.getDimensionality());
+		DenseMatrix pPrec = mfactory.createMatrix(F.getDimensionality(), F.getDimensionality());
+		for(int j = 0; j < A.getNumRows(); j++) {
+			DenseVector Aj = A.getRow(j);
+			int featureIndex = id;
+			if(E != null) featureIndex = j;
+
+			double Fij = 0;
+			if (E == null) Fij = RF.get(j, id);
+			else Fij = RF.get(id, j);
+
+			if(featureType.get(featureIndex).equals("b")) {
+				double expDot = Math.exp(-1 * F.dotProduct(Aj));
+
+				pMu.plusEquals(Aj.scale(Fij - 1 / (1 + expDot)));
+				pPrec.plusEquals(Aj.outerProduct(Aj).scale(-1 * expDot / Math.pow(1 + expDot, 2)));
+			} else {
+				pMu.plusEquals(Aj.scale(alpha * (Fij - F.dotProduct(Aj))));
+				pPrec.minusEquals(Aj.outerProduct(Aj).scale(alpha));
+			}
+		}
+
+		gov.sandia.cognition.math.matrix.Matrix prec = hpin.cov.inverse();
+		pMu.minusEquals(prec.times(F.minus(hpin.mu)));
+		pPrec.minusEquals(prec);
+
+		if(E != null) {
+			for(int j = 0; j < R.numColumns(); j++) {
+				if(R.get(id, j) > 0) {
+					DenseVector Ej = E.getRow(j);
+					pMu.plusEquals(Ej.scale(alpha * (R.get(id, j) - F.dotProduct(Ej))));
+					pPrec.minusEquals(Ej.outerProduct(Ej).scale(alpha));
+				}
+			}
+		}
+
+		return new Statistics(pMu, pPrec.inverse().scale(-1));
+	}
+
+	static double getLogPosteriorProbability(Statistics hpin, DenseVector F, int id, Matrix RF, DenseMatrix A, Matrix R, DenseMatrix E, double alpha, ArrayList<String> featureType) {
+		double result = 0;
+		for(int j = 0; j < A.getNumRows(); j++) {
+			int featureIndex = id;
+			if(E != null) featureIndex = j;
+
+			DenseVector Aj = A.getRow(j);
+			double Fij = 0;
+			if(E == null) Fij = RF.get(j, id);
+			else Fij = RF.get(id, j);
+
+			double dotProd = F.dotProduct(Aj);
+			if(featureType.get(featureIndex).equals("b")) {
+				result += Fij * dotProd - Math.log(1 + Math.exp(dotProd));
+			} else {
+				result -= 0.5 * alpha * (Fij - dotProd);
+			}
+		}
+
+		DenseMatrix prec = (DenseMatrix) hpin.cov.inverse();
+		DenseVector FMinusMu = (DenseVector) F.minus(hpin.mu);
+		result -= 0.5 * FMinusMu.dotProduct(prec.times(FMinusMu));
+
+		if(E != null) {
+			for(int j = 0; j < R.numColumns(); j++) {
+				if(R.get(id, j) > 0) {
+					DenseVector Ej = E.getRow(j);
+					result -= 0.5 * alpha * (R.get(id, j) - F.dotProduct(Ej));
+				}
+			}
+		}
+
+		return result;
+	}
+
+//	static void initializeHessianMH(Hyperparams hStatistics[] F, int t, Matrix RF, Matrix Ain, Matrix R, Matrix Ein, double alpha) {
+//
+//	}
     
     static DenseVector average(DenseMatrix x) {
     	DenseVector result = vfactory.createVector(x.getNumColumns());

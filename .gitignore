@@ -1,1 +1,3 @@
 *.class
+.idea/*
+pgm-project.iml
