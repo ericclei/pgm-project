@@ -11,7 +11,7 @@ public class CollectiveTest {
 		// mfTrain.printMatrix();
 		int latentDim = 3;
 		double step = 1e-5;
-		int maxIterOuter = 10;
+		int maxIterOuter = 50;
 		int maxIterInner = 20;
 		CollectiveMatrixFactorizationDataset mfTest = new MatrixFactorizationMovieLens(
 				"Data/ml-100k/u.user", "Data/ml-100k/u.item",

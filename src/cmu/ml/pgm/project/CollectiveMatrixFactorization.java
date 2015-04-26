@@ -120,30 +120,34 @@ public final class CollectiveMatrixFactorization {
 					Matrix u = result.getLatentFeatures(s);
 
 					// gradient from Bernoulli feature term
-					for (int i = 0; i < n; i++) {
-						// update row i of U
-						Vector grad = new DenseVector(latentDim);
-						for (int k = 0; k < dBern; k++) {
-							Vector u_i = getRow(u, i);
-							Vector a_k = getColumn(aBern, k);
-							Vector newVal = times(a_k, fBern.get(i, k));
-							newVal.add(
-									-1,
-									times(a_k,
-											1 - 1 / (1 + Math.exp(u_i.dot(a_k)))));
-							grad.add(newVal);
+					if (data.getNumBernoulliFeatures(s) != 0) {
+						for (int i = 0; i < n; i++) {
+							// update row i of U
+							Vector grad = new DenseVector(latentDim);
+							for (int k = 0; k < dBern; k++) {
+								Vector u_i = getRow(u, i);
+								Vector a_k = getColumn(aBern, k);
+								Vector newVal = times(a_k, fBern.get(i, k));
+								newVal.add(
+										-1,
+										times(a_k, 1 - 1 / (1 + Math.exp(u_i
+												.dot(a_k)))));
+								grad.add(newVal);
+							}
+							Vector scaledGrad = times(grad, step);
+							addToRow(result.getLatentFeatures(s), i, scaledGrad);
 						}
-						Vector scaledGrad = times(grad, step);
-						addToRow(result.getLatentFeatures(s), i, scaledGrad);
+						// System.out.println("\t1");
 					}
-					// System.out.println("\t1");
 
 					// gradient from normal feature term
-					Matrix gradNorm = times(minus(fNorm, times(u, aNorm)),
-							transpose(aNorm)).scale(1 / sigma2_s);
-					Matrix scaledGradNorm = times(gradNorm, step);
-					result.getLatentFeatures(s).add(scaledGradNorm);
-					// System.out.println("\t2");
+					if (data.getNumNormalFeatures(s) != 0) {
+						Matrix gradNorm = times(minus(fNorm, times(u, aNorm)),
+								transpose(aNorm)).scale(1 / sigma2_s);
+						Matrix scaledGradNorm = times(gradNorm, step);
+						result.getLatentFeatures(s).add(scaledGradNorm);
+						// System.out.println("\t2");
+					}
 
 					// gradient from relation term with each other entity
 					for (int w = 0; w < nEntities; w++) {

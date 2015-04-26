@@ -157,15 +157,15 @@ class MatrixFactorizationMovieLens implements
 				if (datasetType == 0)
 					genderIndex = 2;
 
-				uFeatureMatrix.set(userId, 1,
-						(tokens[genderIndex].equals("M")) ? 1 : 0);
 				int age = discretizeAge(Integer
 						.parseInt(tokens[3 - genderIndex]));
-				for (int i = 1; i <= 7; i++) {
+				for (int i = 0; i <= 6; i++) {
 					uFeatureMatrix.set(userId, i, (age == i) ? 1 : 0);
 				}
 				// uFeatureMatrix.set(userId, 0, age);
 				// if(maxAge < age) maxAge = age;
+				uFeatureMatrix.set(userId, 7,
+						(tokens[genderIndex].equals("M")) ? 1 : 0);
 
 				int occupationId = count;
 				if (occupations.containsKey(tokens[3])) {
@@ -174,7 +174,7 @@ class MatrixFactorizationMovieLens implements
 					occupations.put(tokens[3], count++);
 				}
 
-				for (int i = 2; i < uFeatureSize; i++) {
+				for (int i = 8; i < uFeatureSize; i++) {
 					uFeatureMatrix.set(userId, i, (occupationId == i) ? 1 : 0);
 				}
 			}
