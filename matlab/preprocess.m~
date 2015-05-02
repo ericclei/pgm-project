@@ -1,0 +1,17 @@
+load('../Data/IMC/GeneFeatures.mat')
+load('../Data/IMC/genes_phenes.mat')
+load('../Data/IMC/clinicalfeatures_tfidf.mat')
+
+f_summary = fopen('../Data/IMC/info','w');
+fprintf(f_summary, 'numGenes %d\n', numGenes);
+fprintf(f_summary, 'numDiseases %d', numPhenes);
+
+F = bsxfun(@rdivide, GeneFeatures, max(GeneFeatures) - min(GeneFeatures));
+F = bsxfun(@minus, F, min(F));
+csvwrite('../Data/IMC/gene_features.csv',F)
+
+f_data = fopen('../Data/IMC/data.csv','w');
+[gene, phene, data] = find(GenePhene{1});
+for i = 1:len(gene)
+    fprintf(f_data, '%d,%d,%d\n'
+    
