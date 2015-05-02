@@ -194,8 +194,8 @@ class DataGeneDisease implements
                 int user_id = Integer.parseInt(tokens[0]) - 1;
                 int item_id = Integer.parseInt(tokens[1]) - 1;
                 int rating = Integer.parseInt(tokens[2]);
-                relationMatrix.set(user_id, item_id, rating / 5.0);
-                trainingData.add(new Pair(user_id, item_id, rating / 5.0));
+                relationMatrix.set(user_id, item_id, rating);
+                trainingData.add(new Pair(user_id, item_id, rating));
                 numDataPerUser[user_id]++;
                 numDataPerItem[item_id]++;
             }
