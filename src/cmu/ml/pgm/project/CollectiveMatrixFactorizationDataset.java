@@ -2,6 +2,7 @@ package cmu.ml.pgm.project;
 
 import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.Matrix;
+import no.uib.cipr.matrix.sparse.LinkedSparseMatrix;
 
 import java.util.ArrayList;
 
@@ -32,4 +33,8 @@ public interface CollectiveMatrixFactorizationDataset {
 	ArrayList<String> getuFeatureType();
 
 	ArrayList<String> getiFeatureType();
+
+	Matrix getUserUserMatrix();
+
+	Matrix getItemItemMatrix();
 }
