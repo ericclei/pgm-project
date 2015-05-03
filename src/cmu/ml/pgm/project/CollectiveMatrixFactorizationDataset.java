@@ -23,18 +23,4 @@ public interface CollectiveMatrixFactorizationDataset {
 	int getNumNormalFeatures(int s);
 	
 	int getNumObserved(int s, int t);
-
-	Matrix getRelationMatrix();
-
-	DenseMatrix getuFeatureMatrix();
-
-	DenseMatrix getiFeatureMatrix();
-
-	ArrayList<String> getuFeatureType();
-
-	ArrayList<String> getiFeatureType();
-
-	Matrix getUserUserMatrix();
-
-	Matrix getItemItemMatrix();
 }

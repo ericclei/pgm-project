@@ -48,24 +48,6 @@ class MatrixFactorizationMovieLens implements
 		return iFeatureMatrix;
 	}
 
-	public ArrayList<String> getuFeatureType() {
-		return uFeatureType;
-	}
-
-	public ArrayList<String> getiFeatureType() {
-		return iFeatureType;
-	}
-
-	@Override
-	public Matrix getUserUserMatrix() {
-		return null;
-	}
-
-	@Override
-	public Matrix getItemItemMatrix() {
-		return null;
-	}
-
 	public LinkedSparseMatrix getRelationMatrix() {
 		return relationMatrix;
 	}

@@ -23,7 +23,7 @@ public class CollectiveMatrixFactorizationResult {
 		normalFeatureMaps = new Matrix[numEntities];
 		relationVariances = new double[numEntities][numEntities];
 		featureVariances = new double[numEntities];
-		intermediateRelations = new ArrayList<>();
+		intermediateRelations = new ArrayList<Matrix[][]>();
 	}
 
 	public int getNumEntities() {

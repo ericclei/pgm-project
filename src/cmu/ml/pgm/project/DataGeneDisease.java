@@ -17,8 +17,6 @@ class DataGeneDisease implements
     private int datasetType;
     private DenseMatrix uFeatureMatrix;
     private DenseMatrix iFeatureMatrix;
-    private ArrayList<String> uFeatureType;
-    private ArrayList<String> iFeatureType;
     private LinkedSparseMatrix relationMatrix;
     private LinkedSparseMatrix uuMatrix;
     private DenseMatrix iiMatrix;
@@ -48,14 +46,6 @@ class DataGeneDisease implements
 
     public DenseMatrix getiFeatureMatrix() {
         return iFeatureMatrix;
-    }
-
-    public ArrayList<String> getuFeatureType() {
-        return uFeatureType;
-    }
-
-    public ArrayList<String> getiFeatureType() {
-        return iFeatureType;
     }
 
     public LinkedSparseMatrix getRelationMatrix() {
@@ -114,18 +104,10 @@ class DataGeneDisease implements
 
         uFeatureMatrix = new DenseMatrix(numUsers, uFeatureSize);
         initializeUserMatrix(directory + "gene_features.csv");
-        uFeatureType = new ArrayList<String>();
-        for (int i = 0; i < uFeatureSize; i++) {
-            uFeatureType.add("c");
-        }
 
         iFeatureMatrix = new DenseMatrix(numItems, iFeatureSize);
         initializeItemMatrix(directory + "disease_features.csv");
 
-        iFeatureType = new ArrayList<String>(iFeatureSize);
-        for (int i = 0; i < iFeatureSize; i++) {
-            iFeatureType.add("c");
-        }
         relationMatrix = new LinkedSparseMatrix(numUsers, numItems);
         trainingData = new ArrayList<Pair>();
         numDataPerUser = new int[numUsers];
@@ -267,23 +249,32 @@ class DataGeneDisease implements
 
     @Override
     public Matrix getRelations(int s, int t) {
-        return s == 0 ? relationMatrix : transpose(relationMatrix);
+        if(s == 0) {
+            if(t == 0) {
+                return uuMatrix;
+            } else {
+                return relationMatrix;
+            }
+        } else {
+            if(t == 0) {
+                return transpose(relationMatrix);
+            } else {
+                return iiMatrix;
+            }
+        }
     }
 
     @Override
     public Matrix getBernoulliFeatures(int s) {
-        if (s == 0)
-            return uFeatureMatrix;
-        else
-            return new DenseMatrix(removeColumn(getiFeatureMatrix(), 0));
+        return new DenseMatrix(numUsers, 0);
     }
 
     @Override
     public Matrix getNormalFeatures(int s) {
         if (s == 0)
-            return new DenseMatrix(numUsers, 0);
+            return uFeatureMatrix;
         else
-            return new DenseMatrix(getColumn(getiFeatureMatrix(), 0));
+            return iFeatureMatrix;
     }
 
     @Override
@@ -293,16 +284,28 @@ class DataGeneDisease implements
 
     @Override
     public int getNumBernoulliFeatures(int s) {
-        return s == 0 ? getuFeatureSize() : getiFeatureSize() - 1;
+        return 0;
     }
 
     @Override
     public int getNumNormalFeatures(int s) {
-        return s == 0 ? 0 : 1;
+        return s == 0 ? getuFeatureSize() : getiFeatureSize();
     }
 
     @Override
     public int getNumObserved(int s, int t) {
-        return l0Norm(relationMatrix);
+        if(s == 0) {
+            if(t == 0) {
+                return l0Norm(uuMatrix);
+            } else {
+                return l0Norm(relationMatrix);
+            }
+        } else {
+            if(t == 0) {
+                return l0Norm(relationMatrix);
+            } else {
+                return l0Norm(iiMatrix);
+            }
+        }
     }
 }
