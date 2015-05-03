@@ -4,10 +4,10 @@ num_genes = 12331
 num_diseases = 3215
 
 def convert2num(row, col):
-	return row * num_genes + col
+	return row * num_diseases + col
 
 def convert2coord(num):
-	return num / num_genes, num % num_genes
+	return num / num_diseases, num % num_diseases
 
 done = set()
 
