@@ -3,7 +3,7 @@
 100 features for each entity
 
 latent dimension 10
-variance 0.2 for all normal distributions
+standard deviation 0.2 for all normal distributions
 
 all ratings are positive
 
