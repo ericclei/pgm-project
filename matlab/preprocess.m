@@ -19,8 +19,12 @@ csvwrite('../Data/IMC/disease_features.csv',F)
 data = [gene,phene,data];
 csvwrite('../Data/IMC/data.csv',data);
 
+[gene1, gene2, data] = find(GeneGene_Hs);
+data = [gene1,gene2,data];
+csvwrite('../Data/IMC/gene_gene.csv',data);
 
-
+PhenotypeSimilaritiesLog(PhenotypeSimilaritiesLog < 0.0001) = 0;
+csvwrite('../Data/IMC/disease_disease.csv', PhenotypeSimilaritiesLog);
 
 
     

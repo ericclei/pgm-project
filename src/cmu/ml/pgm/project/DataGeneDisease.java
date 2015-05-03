@@ -20,6 +20,8 @@ class DataGeneDisease implements
     private ArrayList<String> uFeatureType;
     private ArrayList<String> iFeatureType;
     private LinkedSparseMatrix relationMatrix;
+    private LinkedSparseMatrix uuMatrix;
+    private DenseMatrix iiMatrix;
     private ArrayList<Pair> trainingData;
     private int[] numDataPerUser;
     private int[] numDataPerItem;
@@ -60,6 +62,14 @@ class DataGeneDisease implements
         return relationMatrix;
     }
 
+    public LinkedSparseMatrix getUserUserMatrix() {
+        return uuMatrix;
+    }
+
+    public DenseMatrix getItemItemMatrix() {
+        return iiMatrix;
+    }
+
     public ArrayList<Pair> getTrainingData() {
         return trainingData;
     }
@@ -88,12 +98,10 @@ class DataGeneDisease implements
         return iFeatureSize;
     }
 
-    public DataGeneDisease(String userFeatureFilename,
-                                        String itemFeatureFilename, String relationFilename,
-                                        String summaryFilename) {
+    public DataGeneDisease(String directory) {
         try {
             BufferedReader summaryIn = new BufferedReader(new FileReader(
-                    summaryFilename));
+                    directory + "info"));
             numUsers = Integer.parseInt(summaryIn.readLine().split(" ")[0]);
             numItems = Integer.parseInt(summaryIn.readLine().split(" ")[0]);
             uFeatureSize = Integer.parseInt(summaryIn.readLine().split(" ")[0]);
@@ -105,14 +113,14 @@ class DataGeneDisease implements
         }
 
         uFeatureMatrix = new DenseMatrix(numUsers, uFeatureSize);
-        initializeUserMatrix(userFeatureFilename);
+        initializeUserMatrix(directory + "gene_features.csv");
         uFeatureType = new ArrayList<String>();
         for (int i = 0; i < uFeatureSize; i++) {
             uFeatureType.add("c");
         }
 
         iFeatureMatrix = new DenseMatrix(numItems, iFeatureSize);
-        initializeItemMatrix(itemFeatureFilename);
+        initializeItemMatrix(directory + "disease_features.csv");
 
         iFeatureType = new ArrayList<String>(iFeatureSize);
         for (int i = 0; i < iFeatureSize; i++) {
@@ -122,7 +130,10 @@ class DataGeneDisease implements
         trainingData = new ArrayList<Pair>();
         numDataPerUser = new int[numUsers];
         numDataPerItem = new int[numItems];
-        initializeRelationMatrix(relationFilename);
+        initializeRelationMatrix(directory + "data.csv");
+
+        uuMatrix = new LinkedSparseMatrix(numUsers, numUsers);
+        initializeUserUserMatrix(directory + "gene_gene.csv");
     }
 
     /**
@@ -198,6 +209,43 @@ class DataGeneDisease implements
                 trainingData.add(new Pair(user_id, item_id, rating));
                 numDataPerUser[user_id]++;
                 numDataPerItem[item_id]++;
+            }
+            fin.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
+    public void initializeUserUserMatrix(String filename) {
+        try {
+            BufferedReader fin = new BufferedReader(new FileReader(filename));
+            while (fin.ready()) {
+                String delim = ",";
+                String[] tokens = fin.readLine().split(delim);
+                int user_id = Integer.parseInt(tokens[0]) - 1;
+                int item_id = Integer.parseInt(tokens[1]) - 1;
+                double rating = Double.parseDouble(tokens[2]);
+                uuMatrix.set(user_id, item_id, rating);
+            }
+            fin.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
+    public void initializeItemItemMatrix(String filename) {
+        try {
+            BufferedReader fin = new BufferedReader(new FileReader(filename));
+            int itemId = 0;
+            while (fin.ready()) {
+                String delim = ",";
+                String[] tokens = fin.readLine().split(delim);
+                for(int i = 0; i < tokens.length; i++) {
+                    iFeatureMatrix.set(itemId, i, Double.parseDouble(tokens[i]));
+                }
+                itemId ++;
             }
             fin.close();
         } catch (Exception e) {

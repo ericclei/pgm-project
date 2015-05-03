@@ -29,8 +29,8 @@ public class test {
 		PrintWriter writer;
 
 		boolean doBaselineMethod = false;
-		boolean doFeaturesMethod = true; // rmse=.19
-		boolean doBayesian = false;
+		boolean doFeaturesMethod = false; // rmse=.19
+		boolean doBayesian = true;
 
 		if (doBaselineMethod) {
 			for (int d = 1; d <= 10; d++) {
