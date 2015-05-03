@@ -47,7 +47,7 @@ public final class BayesianMatrixFactorization {
      */
     public static MatrixFactorizationResult factorizeMatrixWithFeatures(MatrixFactorizationMovieLens data,
                                                                         int latentDim, int numSamples, double alpha) {
-		Matrix R = data.getRelationMatrix();
+		Matrix R = data.getRelations(0, 1);
 		Matrix F = data.getuFeatureMatrix();
 		Matrix G = data.getiFeatureMatrix();
 		int dF = F.numColumns();
@@ -163,7 +163,6 @@ public final class BayesianMatrixFactorization {
     		DenseMatrix cov_ind = (DenseMatrix) prec_ind.inverse();
     		mu = (DenseVector) mu.times(cov_ind);
     		MultivariateGaussian normal = new MultivariateGaussian(mu, cov_ind);
-			System.out.println(mu);
     		setRow(F[t], (DenseVector) normal.sample(rand), i);
     	}
     }
@@ -185,6 +184,10 @@ public final class BayesianMatrixFactorization {
 			postStat.mu = (DenseVector) newFi.minus(postStat.cov.times(postStat.mu).scale(eta));
 
 			DenseVector oldFi = oldF.getRow(i);
+			System.out.println("new: " + newFi);
+			System.out.println("old: " + oldFi);
+//			System.out.println(getLogPosteriorProbability(hpin, newFi, i, RF, A, R, E, alpha, featureType));
+//			System.out.println(getLogPosteriorProbability(hpin, oldFi, i, RF, A, R, E, alpha, featureType));
 			double acceptanceProbability = getLogPosteriorProbability(hpin, newFi, i, RF, A, R, E, alpha, featureType)
 					- getLogPosteriorProbability(hpin, oldFi, i, RF, A, R, E, alpha, featureType);
 			MultivariateGaussian newDist = new MultivariateGaussian(postStat.mu, postStat.cov);
@@ -192,9 +195,11 @@ public final class BayesianMatrixFactorization {
 					/ oldDist.getProbabilityFunction().evaluate(newFi);
 
 			if(rand.nextDouble() < acceptanceProbability) {
+//				System.out.println(1);
 				ps[i] = postStat;
 				setRow(F[t], newFi, i);
 			} else {
+//				System.out.println(0);
 				setRow(F[t], oldFi, i);
 			}
 		}
@@ -235,7 +240,7 @@ public final class BayesianMatrixFactorization {
 
 			if(featureType.get(featureIndex).equals("b")) {
 				double expDot = Math.exp(-1 * F.dotProduct(Aj));
-
+//				System.out.println(expDot);
 				pMu.plusEquals(Aj.scale(Fij - 1 / (1 + expDot)));
 				pPrec.plusEquals(Aj.outerProduct(Aj).scale(-1 * expDot / Math.pow(1 + expDot, 2)));
 			} else {
@@ -276,7 +281,7 @@ public final class BayesianMatrixFactorization {
 			if(featureType.get(featureIndex).equals("b")) {
 				result += Fij * dotProd - Math.log(1 + Math.exp(dotProd));
 			} else {
-				result -= 0.5 * alpha * (Fij - dotProd);
+				result -= 0.5 * alpha * Math.pow(Fij - dotProd, 2);
 			}
 		}
 
@@ -288,7 +293,7 @@ public final class BayesianMatrixFactorization {
 			for(int j = 0; j < R.numColumns(); j++) {
 				if(R.get(id, j) > 0) {
 					DenseVector Ej = E.getRow(j);
-					result -= 0.5 * alpha * (R.get(id, j) - F.dotProduct(Ej));
+					result -= 0.5 * alpha * Math.pow(R.get(id, j) - F.dotProduct(Ej), 2);
 				}
 			}
 		}
@@ -337,7 +342,7 @@ public final class BayesianMatrixFactorization {
         Random r = new Random();
         for (int i = 0; i < x.numRows(); i++)
             for (int j = 0; j < x.numColumns(); j++)
-                x.set(i, j, 2 * r.nextDouble() - 1);
+                x.set(i, j, r.nextDouble() - 1);
     }
 
     static void setAllValues(Matrix x, double val) {
