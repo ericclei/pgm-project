@@ -13,7 +13,16 @@ public final class CollectiveMatrixFactorization {
 
 	public static CollectiveMatrixFactorizationResult factorizeMatricesWithFeatures(
 			CollectiveMatrixFactorizationDataset data, int latentDim,
-			int maxIterOuter, int maxIterInner, double step) {
+			int maxIterOuter, int maxIterInner, double stepFeatureTransforms,
+			double stepLatentFeatures) {
+		return factorizeMatricesWithFeatures(data, latentDim, maxIterOuter,
+				maxIterInner, stepFeatureTransforms, stepLatentFeatures, true);
+	}
+
+	public static CollectiveMatrixFactorizationResult factorizeMatricesWithFeatures(
+			CollectiveMatrixFactorizationDataset data, int latentDim,
+			int maxIterOuter, int maxIterInner, double stepFeatureTransforms,
+			double stepLatentFeatures, boolean saveIntermediate) {
 
 		int nEntities = data.getNumEntities();
 		CollectiveMatrixFactorizationResult result = new CollectiveMatrixFactorizationResult(
@@ -40,8 +49,10 @@ public final class CollectiveMatrixFactorization {
 							/ (n * dNorm));
 		}
 		for (int s = 0; s < nEntities; s++) {
-			for (int t = s + 1; t < nEntities; t++) {
+			for (int t = s; t < nEntities; t++) {
 				Matrix r = data.getRelations(s, t);
+				if (r == null)
+					continue;
 				Matrix rHat = result.getRelations(s, t);
 				result.setRelationVariance(
 						s,
@@ -56,6 +67,7 @@ public final class CollectiveMatrixFactorization {
 			System.out.println("t = " + t);
 			// update feature maps for each entity
 			for (int s = 0; s < nEntities; s++) {
+				System.out.println("updating feature maps for " + s);
 				Matrix u = result.getLatentFeatures(s);
 				Matrix fBern = data.getBernoulliFeatures(s);
 				Matrix fNorm = data.getNormalFeatures(s);
@@ -66,6 +78,7 @@ public final class CollectiveMatrixFactorization {
 
 				// update Bernoulli maps
 				for (int tt = 0; tt < maxIterInner; tt++) {
+					System.out.println("\ttt = " + tt);
 					// update each column
 					for (int k = 0; k < dBern; k++) {
 						Vector grad = new DenseVector(latentDim);
@@ -80,7 +93,7 @@ public final class CollectiveMatrixFactorization {
 											1 - 1 / (1 + Math.exp(u_i.dot(a_k)))));
 							grad.add(newVal);
 						}
-						Vector scaledGrad = times(grad, step);
+						Vector scaledGrad = times(grad, stepFeatureTransforms);
 						addToColumn(a, k, scaledGrad);
 						result.setBernoulliFeatureMap(s, a);
 					}
@@ -92,7 +105,7 @@ public final class CollectiveMatrixFactorization {
 					Matrix grad = times(transpose(u),
 							minus(fNorm, times(u, an)));
 					grad.scale(1 / sigma2);
-					Matrix scaledGrad = times(grad, step);
+					Matrix scaledGrad = times(grad, stepFeatureTransforms);
 					an.add(scaledGrad);
 					result.setNormalFeatureMap(s, an);
 				}
@@ -107,6 +120,7 @@ public final class CollectiveMatrixFactorization {
 
 			// update latent features for each entity
 			for (int s = 0; s < nEntities; s++) {
+				System.out.println("updating latent features for " + s);
 				Matrix fBern = data.getBernoulliFeatures(s);
 				Matrix fNorm = data.getNormalFeatures(s);
 				Matrix aBern = result.getBernoulliFeatureMap(s);
@@ -116,7 +130,7 @@ public final class CollectiveMatrixFactorization {
 				double sigma2_s = result.getFeatureVariance(s);
 
 				for (int tt = 0; tt < maxIterInner; tt++) {
-					// System.out.println("\ttt = " + tt);
+					System.out.println("\ttt = " + tt);
 					Matrix u = result.getLatentFeatures(s);
 
 					// gradient from Bernoulli feature term
@@ -134,26 +148,31 @@ public final class CollectiveMatrixFactorization {
 												.dot(a_k)))));
 								grad.add(newVal);
 							}
-							Vector scaledGrad = times(grad, step);
+							Vector scaledGrad = times(grad, stepLatentFeatures);
 							addToRow(result.getLatentFeatures(s), i, scaledGrad);
 						}
 						// System.out.println("\t1");
 					}
 
+					System.out.println("getting gradient from normal features");
 					// gradient from normal feature term
 					if (data.getNumNormalFeatures(s) != 0) {
 						Matrix gradNorm = times(minus(fNorm, times(u, aNorm)),
 								transpose(aNorm)).scale(1 / sigma2_s);
-						Matrix scaledGradNorm = times(gradNorm, step);
+						Matrix scaledGradNorm = times(gradNorm,
+								stepLatentFeatures);
 						result.getLatentFeatures(s).add(scaledGradNorm);
 						// System.out.println("\t2");
 					}
 
-					// gradient from relation term with each other entity
+					System.out.println("getting gradient from relations");
+					// gradient from relation term with each entity
 					for (int w = 0; w < nEntities; w++) {
-						if (w == s)
-							continue;
+						// if (w == s)
+						// continue;
 						Matrix r = data.getRelations(s, w);
+						if (r == null)
+							continue;
 						Matrix v = result.getLatentFeatures(w);
 						Matrix rHat = times(u, transpose(v));
 						int n_w = data.getNumItems(w);
@@ -164,12 +183,15 @@ public final class CollectiveMatrixFactorization {
 							for (int j = 0; j < n_w; j++) {
 								double r_ij = r.get(i, j);
 								double rHat_ij = rHat.get(i, j);
+								double selfRelationCorrection = (w == s && i == j) ? 2
+										: 1;
 								if (r_ij != 0)
 									grad.add(times(getRow(v, j),
-											(r_ij - rHat_ij)));
+											selfRelationCorrection
+													* (r_ij - rHat_ij)));
 							}
 							grad.scale(1 / sigma2_sw);
-							Vector scaledGrad = times(grad, step);
+							Vector scaledGrad = times(grad, stepLatentFeatures);
 							addToRow(result.getLatentFeatures(s), i, scaledGrad);
 						}
 					}
@@ -192,6 +214,8 @@ public final class CollectiveMatrixFactorization {
 
 				for (int w = s + 1; w < nEntities; w++) {
 					Matrix r = data.getRelations(s, w);
+					if (r == null)
+						continue;
 					Matrix rHat = result.getRelations(s, w);
 					result.setRelationVariance(
 							s,
@@ -201,7 +225,8 @@ public final class CollectiveMatrixFactorization {
 				}
 			}
 
-			result.addIntermediateRelations();
+			if (saveIntermediate)
+				result.addIntermediateRelations();
 		}
 
 		return result;

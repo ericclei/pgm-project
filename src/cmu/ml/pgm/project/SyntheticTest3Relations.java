@@ -2,10 +2,10 @@ package cmu.ml.pgm.project;
 
 import no.uib.cipr.matrix.Matrix;
 
-public class SyntheticTest {
+public class SyntheticTest3Relations {
 
 	public static void main(String[] args) {
-		CollectiveMatrixFactorizationDataset mfTrain = new SyntheticDataset(
+		CollectiveMatrixFactorizationDataset mfTrain = new SyntheticDataset3Relations(
 				"Data/synthetic/F.1.dat", "Data/synthetic/F.2.dat",
 				"Data/synthetic/F.3.dat", "Data/synthetic/R.1.2.train.dat",
 				"Data/synthetic/R.1.3.train.dat",
@@ -14,7 +14,7 @@ public class SyntheticTest {
 		double step = 1e-4;
 		int maxIterOuter = 20;
 		int maxIterInner = 10;
-		CollectiveMatrixFactorizationDataset mfTest = new SyntheticDataset(
+		CollectiveMatrixFactorizationDataset mfTest = new SyntheticDataset3Relations(
 				"Data/synthetic/F.1.dat", "Data/synthetic/F.2.dat",
 				"Data/synthetic/F.3.dat", "Data/synthetic/R.1.2.test.dat",
 				"Data/synthetic/R.1.3.test.dat",
@@ -23,7 +23,7 @@ public class SyntheticTest {
 		System.out.println("starting");
 		CollectiveMatrixFactorizationResult featuresResult = CollectiveMatrixFactorization
 				.factorizeMatricesWithFeatures(mfTrain, latentDim,
-						maxIterOuter, maxIterInner, step);
+						maxIterOuter, maxIterInner, step, step);
 		System.out.println("done");
 		for (int k = 0; k < featuresResult.getNumIntermediate(); k++) {
 			int s = 0, t = 1;
@@ -43,6 +43,7 @@ public class SyntheticTest {
 					+ " with features = %f\n", featuresError);
 
 		}
+		System.out.println();
 
 		for (int k = 0; k < featuresResult.getNumIntermediate(); k++) {
 			int s = 0, t = 2;
@@ -62,6 +63,7 @@ public class SyntheticTest {
 					+ " with features = %f\n", featuresError);
 
 		}
+		System.out.println();
 
 		for (int k = 0; k < featuresResult.getNumIntermediate(); k++) {
 			int s = 1, t = 2;

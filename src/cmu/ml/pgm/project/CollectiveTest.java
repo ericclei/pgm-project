@@ -21,7 +21,7 @@ public class CollectiveTest {
 		System.out.println("starting with features");
 		CollectiveMatrixFactorizationResult featuresResult = CollectiveMatrixFactorization
 				.factorizeMatricesWithFeatures(mfTrain, latentDim,
-						maxIterOuter, maxIterInner, step);
+						maxIterOuter, maxIterInner, step, step);
 		System.out.println("done with features");
 		for (int k = 0; k < featuresResult.getNumIntermediate(); k++) {
 			Matrix rFeatures = featuresResult.getIntermediateRelations(k, 0, 1);

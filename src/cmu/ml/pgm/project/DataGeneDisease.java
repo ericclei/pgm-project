@@ -1,20 +1,17 @@
 package cmu.ml.pgm.project;
 
 import static cmu.ml.pgm.project.MatrixMethods.*;
-import no.uib.cipr.matrix.DenseMatrix;
-import no.uib.cipr.matrix.Matrix;
-import no.uib.cipr.matrix.sparse.LinkedSparseMatrix;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+
+import no.uib.cipr.matrix.DenseMatrix;
+import no.uib.cipr.matrix.Matrix;
+import no.uib.cipr.matrix.sparse.LinkedSparseMatrix;
 
 class DataGeneDisease implements
         CollectiveMatrixFactorizationDataset {
-    private int datasetType;
     private DenseMatrix uFeatureMatrix;
     private DenseMatrix iFeatureMatrix;
     private LinkedSparseMatrix relationMatrix;
@@ -88,7 +85,7 @@ class DataGeneDisease implements
         return iFeatureSize;
     }
 
-    public DataGeneDisease(String directory) {
+    public DataGeneDisease(String directory, boolean isTraining) {
         try {
             BufferedReader summaryIn = new BufferedReader(new FileReader(
                     directory + "info"));
@@ -112,10 +109,15 @@ class DataGeneDisease implements
         trainingData = new ArrayList<Pair>();
         numDataPerUser = new int[numUsers];
         numDataPerItem = new int[numItems];
-        initializeRelationMatrix(directory + "data.csv");
+        
+        String dataFile = isTraining ? "data_train.csv" : "data_test.csv";
+        initializeRelationMatrix(directory + dataFile);
 
         uuMatrix = new LinkedSparseMatrix(numUsers, numUsers);
         initializeUserUserMatrix(directory + "gene_gene.csv");
+
+        iiMatrix = new DenseMatrix(numUsers, numItems);
+        initializeItemItemMatrix(directory + "disease_disease.csv");
     }
 
     /**
@@ -184,8 +186,8 @@ class DataGeneDisease implements
             while (fin.ready()) {
                 String delim = ",";
                 String[] tokens = fin.readLine().split(delim);
-                int user_id = Integer.parseInt(tokens[0]) - 1;
-                int item_id = Integer.parseInt(tokens[1]) - 1;
+                int user_id = Integer.parseInt(tokens[0]);
+                int item_id = Integer.parseInt(tokens[1]);
                 int rating = Integer.parseInt(tokens[2]);
                 relationMatrix.set(user_id, item_id, rating);
                 trainingData.add(new Pair(user_id, item_id, rating));
@@ -225,7 +227,7 @@ class DataGeneDisease implements
                 String delim = ",";
                 String[] tokens = fin.readLine().split(delim);
                 for(int i = 0; i < tokens.length; i++) {
-                    iFeatureMatrix.set(itemId, i, Double.parseDouble(tokens[i]));
+                    iiMatrix.set(itemId, i, Double.parseDouble(tokens[i]));
                 }
                 itemId ++;
             }

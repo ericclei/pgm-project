@@ -38,7 +38,6 @@ public class CollectiveMatrixFactorizationResult {
 	 * @return
 	 */
 	public Matrix getRelations(int s, int t) {
-		assert s != t;
 		return times(latentFeatures[s], transpose(latentFeatures[t]));
 	}
 
@@ -67,12 +66,10 @@ public class CollectiveMatrixFactorizationResult {
 	}
 
 	public double getRelationVariance(int s, int t) {
-		assert s != t;
 		return relationVariances[s][t];
 	}
 
 	public void setRelationVariance(int s, int t, double v) {
-		assert s != t;
 		relationVariances[s][t] = v;
 		relationVariances[t][s] = v;
 	}
@@ -87,8 +84,9 @@ public class CollectiveMatrixFactorizationResult {
 
 	public Matrix getIntermediateRelations(int i, int s, int t) {
 		assert i < getNumIntermediate();
-		assert s != t;
-		return intermediateRelations.get(i)[s][t];
+		if (s <= t)
+			return intermediateRelations.get(i)[s][t];
+		return transpose(intermediateRelations.get(i)[t][s]);
 	}
 
 	public int getNumIntermediate() {
@@ -99,7 +97,7 @@ public class CollectiveMatrixFactorizationResult {
 		int nE = getNumEntities();
 		Matrix[][] rs = new Matrix[nE][nE];
 		for (int s = 0; s < nE; s++) {
-			for (int t = s + 1; t < nE; t++) {
+			for (int t = s; t < nE; t++) {
 				rs[s][t] = times(latentFeatures[s],
 						transpose(latentFeatures[t]));
 			}

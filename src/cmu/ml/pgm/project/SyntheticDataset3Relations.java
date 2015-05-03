@@ -14,7 +14,7 @@ import static cmu.ml.pgm.project.MatrixMethods.*;
  * @author eric
  *
  */
-public class SyntheticDataset implements CollectiveMatrixFactorizationDataset {
+public class SyntheticDataset3Relations implements CollectiveMatrixFactorizationDataset {
 
 	private Matrix f1, f2, f3, r12, r13, r23;
 	private final int N_ENTITIES = 3;
@@ -24,7 +24,7 @@ public class SyntheticDataset implements CollectiveMatrixFactorizationDataset {
 	private final int N_OBS_R13 = 50000;
 	private final int N_OBS_R23 = 50000;
 
-	public SyntheticDataset(String f1Path, String f2Path, String f3Path,
+	public SyntheticDataset3Relations(String f1Path, String f2Path, String f3Path,
 			String r12Path, String r13Path, String r23Path, boolean isSparse) {
 		if (isSparse) {
 			r12 = new LinkedSparseMatrix(N[0], N[1]);
@@ -95,7 +95,7 @@ public class SyntheticDataset implements CollectiveMatrixFactorizationDataset {
 
 	@Override
 	public Matrix getRelations(int s, int t) {
-		assert s != t;
+		if (s == t) return null;
 		assert 0 <= s && s <= 2;
 		assert 0 <= t && t <= 2;
 		if (s == 0) {
@@ -155,7 +155,7 @@ public class SyntheticDataset implements CollectiveMatrixFactorizationDataset {
 
 	@Override
 	public int getNumObserved(int s, int t) {
-		assert s != t;
+		if (s == t) return 0;
 		assert 0 <= s && s <= 2;
 		assert 0 <= t && t <= 2;
 		if (s == 0) {
