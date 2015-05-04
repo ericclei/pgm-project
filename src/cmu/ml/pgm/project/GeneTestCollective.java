@@ -9,10 +9,10 @@ public class GeneTestCollective {
 		CollectiveMatrixFactorizationDataset test = new DataGeneDisease(
 				"Data/IMC/", false);
 		int latentDim = 5;
-		double stepTransform = 1e-5;
-		double stepLatentFromFeatures = 1e-5;
-		double stepLatentFromRelations = 1e-3;
-		int maxIterOuter = 3;
+		double stepTransform = 1e-6;
+		double stepLatentFromFeatures = 1e-6;
+		double stepLatentFromRelations = 1e-4;
+		int maxIterOuter = 10;
 		int maxIterInner = 10;
 
 		System.out.println("starting");

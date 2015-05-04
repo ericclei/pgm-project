@@ -98,7 +98,7 @@ class MatrixFactorizationMovieLens implements
 	public MatrixFactorizationMovieLens(String userFeatureFilename,
 			String itemFeatureFilename, String relationFilename,
 			String summaryFilename, int dataset) {
-		datasetType = dataset;
+		datasetType = dataset; // 1: 1m, 0: 100k
 		uFeatureSize = 29; // 7 age, gender, 21 occupations (binary)
 		iFeatureSize = 20; // release date, 19 genres (binary)
 		try {
@@ -307,6 +307,7 @@ class MatrixFactorizationMovieLens implements
 
 	@Override
 	public Matrix getRelations(int s, int t) {
+		if (s == t) return null;
 		return s == 0 ? relationMatrix : transpose(relationMatrix);
 	}
 
@@ -343,6 +344,7 @@ class MatrixFactorizationMovieLens implements
 
 	@Override
 	public int getNumObserved(int s, int t) {
+		if (s == t) return 0;
 		return l0Norm(relationMatrix);
 	}
 }
