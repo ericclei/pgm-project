@@ -223,14 +223,13 @@ class DataGeneDisease implements
     public void initializeItemItemMatrix(String filename) {
         try {
             BufferedReader fin = new BufferedReader(new FileReader(filename));
-            int itemId = 0;
             while (fin.ready()) {
                 String delim = ",";
                 String[] tokens = fin.readLine().split(delim);
-                for(int i = 0; i < tokens.length; i++) {
-                    iiMatrix.set(itemId, i, Double.parseDouble(tokens[i]));
-                }
-                itemId ++;
+                int user_id = Integer.parseInt(tokens[0]) - 1;
+                int item_id = Integer.parseInt(tokens[1]) - 1;
+                double rating = Double.parseDouble(tokens[2]);
+                iiMatrix.set(user_id, item_id, rating);
             }
             fin.close();
         } catch (Exception e) {
@@ -238,7 +237,6 @@ class DataGeneDisease implements
             System.exit(-1);
         }
     }
-
     public void printMatrix() {
         System.out.println(relationMatrix);
     }
