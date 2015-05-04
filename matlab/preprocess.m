@@ -23,8 +23,11 @@ csvwrite('../Data/IMC/data.csv',data);
 data = [gene1,gene2,data];
 csvwrite('../Data/IMC/gene_gene.csv',data);
 
-PhenotypeSimilaritiesLog(PhenotypeSimilaritiesLog < 0.0001) = 0;
-csvwrite('../Data/IMC/disease_disease.csv', PhenotypeSimilaritiesLog);
+% PhenotypeSimilaritiesLog(PhenotypeSimilaritiesLog < 0.0001) = 0;
+% csvwrite('../Data/IMC/disease_disease.csv', PhenotypeSimilaritiesLog);
 
+[disease1, disease2, data] = find(PhenotypeSimilarities);
+data = [disease1,disease2,data];
+csvwrite('../Data/IMC/disease_disease.csv',data);
 
     
