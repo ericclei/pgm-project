@@ -10,7 +10,7 @@ public class CollectiveTest {
 				"Data/ml-100k/u.data.train", "Data/ml-100k/u.info.train", 0);
 		// mfTrain.printMatrix();
 		// int latentDim = 3;
-		int[] ls = { 1, 3, 5, 7, 9 };
+		int[] ls = { 2, 4, 6, 8 };
 		double step = 1e-5;
 		int maxIterOuter = 50;
 		int maxIterInner = 20;
