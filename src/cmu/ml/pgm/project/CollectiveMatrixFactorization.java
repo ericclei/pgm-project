@@ -1,10 +1,10 @@
 package cmu.ml.pgm.project;
 
 import static cmu.ml.pgm.project.MatrixMethods.*;
-import no.uib.cipr.matrix.DenseMatrix;
-import no.uib.cipr.matrix.DenseVector;
-import no.uib.cipr.matrix.Matrix;
-import no.uib.cipr.matrix.Vector;
+
+import java.io.*;
+
+import no.uib.cipr.matrix.*;
 
 public final class CollectiveMatrixFactorization {
 
@@ -16,13 +16,15 @@ public final class CollectiveMatrixFactorization {
 			int maxIterOuter, int maxIterInner, double stepFeatureTransforms,
 			double stepLatentFeatures) {
 		return factorizeMatricesWithFeatures(data, latentDim, maxIterOuter,
-				maxIterInner, stepFeatureTransforms, stepLatentFeatures, true);
+				maxIterInner, stepFeatureTransforms, stepLatentFeatures,
+				stepLatentFeatures, true, false);
 	}
 
 	public static CollectiveMatrixFactorizationResult factorizeMatricesWithFeatures(
 			CollectiveMatrixFactorizationDataset data, int latentDim,
 			int maxIterOuter, int maxIterInner, double stepFeatureTransforms,
-			double stepLatentFeatures, boolean saveIntermediate) {
+			double stepLatentFromFeatures, double stepLatentFromRelations,
+			boolean saveIntermediate, boolean writeIntermediate) {
 
 		int nEntities = data.getNumEntities();
 		CollectiveMatrixFactorizationResult result = new CollectiveMatrixFactorizationResult(
@@ -148,7 +150,8 @@ public final class CollectiveMatrixFactorization {
 												.dot(a_k)))));
 								grad.add(newVal);
 							}
-							Vector scaledGrad = times(grad, stepLatentFeatures);
+							Vector scaledGrad = times(grad,
+									stepLatentFromFeatures);
 							addToRow(result.getLatentFeatures(s), i, scaledGrad);
 						}
 						// System.out.println("\t1");
@@ -160,7 +163,7 @@ public final class CollectiveMatrixFactorization {
 						Matrix gradNorm = times(minus(fNorm, times(u, aNorm)),
 								transpose(aNorm)).scale(1 / sigma2_s);
 						Matrix scaledGradNorm = times(gradNorm,
-								stepLatentFeatures);
+								stepLatentFromFeatures);
 						result.getLatentFeatures(s).add(scaledGradNorm);
 						// System.out.println("\t2");
 					}
@@ -173,7 +176,7 @@ public final class CollectiveMatrixFactorization {
 						Matrix r = data.getRelations(s, w);
 						if (r == null)
 							continue;
-						Matrix v = result.getLatentFeatures(w);
+						Matrix v = w == s ? u : result.getLatentFeatures(w);
 						Matrix rHat = times(u, transpose(v));
 						int n_w = data.getNumItems(w);
 						double sigma2_sw = result.getRelationVariance(s, w);
@@ -191,8 +194,11 @@ public final class CollectiveMatrixFactorization {
 													* (r_ij - rHat_ij)));
 							}
 							grad.scale(1 / sigma2_sw);
-							Vector scaledGrad = times(grad, stepLatentFeatures);
+							Vector scaledGrad = times(grad,
+									stepLatentFromRelations);
 							addToRow(result.getLatentFeatures(s), i, scaledGrad);
+							if (i == 0) 
+								System.out.println(scaledGrad.get(0));
 						}
 					}
 					// System.out.println("\t3");
@@ -227,8 +233,39 @@ public final class CollectiveMatrixFactorization {
 
 			if (saveIntermediate)
 				result.addIntermediateRelations();
+
+			if (writeIntermediate)
+				writeLatentFeatures(result, t);
 		}
 
 		return result;
 	}
+
+	public static void writeLatentFeatures(
+			CollectiveMatrixFactorizationResult result, int t) {
+		try {
+			String dir = "output/";
+			int nEntities = result.getNumEntities();
+			for (int s = 0; s < nEntities; s++) {
+				Matrix u = result.getLatentFeatures(s);
+				String filename = dir + String.format("U.%d.(%d).dat", s, t);
+				File file = new File(filename);
+				FileWriter fw = new FileWriter(file.getAbsoluteFile());
+				BufferedWriter bw = new BufferedWriter(fw);
+				int nRows = u.numRows();
+				int nCols = u.numColumns();
+				for (int i = 0; i < nRows; i++) {
+					bw.write("" + u.get(i, 0));
+					for (int j = 1; j < nCols; j++) {
+						bw.write("," + u.get(i, j));
+					}
+					bw.newLine();
+				}
+				bw.close();
+			}
+		} catch (IOException e) {
+			System.err.println(e);
+		}
+	}
+
 }

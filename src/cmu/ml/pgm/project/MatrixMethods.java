@@ -2,11 +2,7 @@ package cmu.ml.pgm.project;
 
 import java.util.Random;
 
-import no.uib.cipr.matrix.DenseMatrix;
-import no.uib.cipr.matrix.DenseVector;
-import no.uib.cipr.matrix.Matrix;
-import no.uib.cipr.matrix.Vector;
-import no.uib.cipr.matrix.sparse.LinkedSparseMatrix;
+import no.uib.cipr.matrix.*;
 
 public class MatrixMethods {
 

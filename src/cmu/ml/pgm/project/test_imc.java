@@ -1,10 +1,6 @@
 package cmu.ml.pgm.project;
 
-import no.uib.cipr.matrix.Matrix;
-
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 
 /**
  * Created by dexter on 5/2/15.
@@ -12,7 +8,7 @@ import java.io.UnsupportedEncodingException;
 public class test_imc {
     public static void main(String[] args) {
         String directory = "Data/IMC/";
-        DataGeneDisease mfTrain = new DataGeneDisease(directory);
+        DataGeneDisease mfTrain = new DataGeneDisease(directory, true);
         int latentDim = 3;
         double stepSize = 1e-4;
         double regCoef = .1;

@@ -188,7 +188,8 @@ class DataGeneDisease implements
                 String[] tokens = fin.readLine().split(delim);
                 int user_id = Integer.parseInt(tokens[0]);
                 int item_id = Integer.parseInt(tokens[1]);
-                int rating = Integer.parseInt(tokens[2]);
+                double rating = Integer.parseInt(tokens[2]);
+                rating = (rating + 1.0) / 2;
                 relationMatrix.set(user_id, item_id, rating);
                 trainingData.add(new Pair(user_id, item_id, rating));
                 numDataPerUser[user_id]++;
