@@ -64,27 +64,10 @@ public final class CollectiveMatrixFactorization {
 			}
 		}
 
-		{ // assume no bernoulli features
-			double obj = 0; // negative log likelihood
-			for (int s = 0; s < nEntities; s++) {
-				for (int w = s; w < nEntities; w++) {
-					Matrix r = data.getRelations(s, w);
-					if (r == null)
-						continue;
-					Matrix rHat = result.getRelations(s, w);
-					obj += sparseSquaredFrobeniusNormOfDiff(r, rHat)
-							/ result.getRelationVariance(s, w);
-				}
-				Matrix fHat = times(result.getLatentFeatures(s),
-						result.getNormalFeatureMap(s));
-				double temp = squaredFrobeniusNorm(minus(
-						data.getNormalFeatures(s), fHat))
-						/ result.getFeatureVariance(s);
-				obj += temp;
-				obj += Math.log(result.getFeatureVariance(s)) * fHat.numRows()
-						* fHat.numColumns();
-			}
+		{
+			double obj = calcObj(data, result);
 			System.out.println("initial neg llh=" + obj);
+			System.out.println();
 		}
 
 		// coordinate descent
@@ -103,7 +86,7 @@ public final class CollectiveMatrixFactorization {
 
 				// update Bernoulli maps
 				for (int tt = 0; tt < maxIterInner; tt++) {
-//					System.out.println("\ttt = " + tt);
+					// System.out.println("\ttt = " + tt);
 					// update each column
 					for (int k = 0; k < dBern; k++) {
 						Vector grad = new DenseVector(latentDim);
@@ -144,28 +127,11 @@ public final class CollectiveMatrixFactorization {
 			}
 			// System.out.println("finished feature maps");
 
-			{ // assume no bernoulli features
-				double obj = 0; // negative log likelihood
-				for (int s = 0; s < nEntities; s++) {
-					for (int w = s; w < nEntities; w++) {
-						Matrix r = data.getRelations(s, w);
-						if (r == null)
-							continue;
-						Matrix rHat = result.getRelations(s, w);
-						obj += sparseSquaredFrobeniusNormOfDiff(r, rHat)
-								/ result.getRelationVariance(s, w);
-					}
-					Matrix fHat = times(result.getLatentFeatures(s),
-							result.getNormalFeatureMap(s));
+			{
+				double obj = calcObj(data, result);
 
-					double temp = squaredFrobeniusNorm(minus(
-							data.getNormalFeatures(s), fHat))
-							/ result.getFeatureVariance(s);
-					obj += temp;
-					obj += Math.log(result.getFeatureVariance(s))
-							* fHat.numRows() * fHat.numColumns();
-				}
 				System.out.println("after feature map neg llh=" + obj);
+				System.out.println();
 			}
 
 			// update latent features for each entity
@@ -180,7 +146,7 @@ public final class CollectiveMatrixFactorization {
 				double sigma2_s = result.getFeatureVariance(s);
 
 				for (int tt = 0; tt < maxIterInner; tt++) {
-//					System.out.println("\ttt = " + tt);
+					// System.out.println("\ttt = " + tt);
 					Matrix u = result.getLatentFeatures(s);
 
 					// gradient from Bernoulli feature term
@@ -255,26 +221,11 @@ public final class CollectiveMatrixFactorization {
 			}
 			// System.out.println("finished latent features");
 
-			{ // assume no bernoulli features
-				double obj = 0; // negative log likelihood
-				for (int s = 0; s < nEntities; s++) {
-					for (int w = s; w < nEntities; w++) {
-						Matrix r = data.getRelations(s, w);
-						if (r == null)
-							continue;
-						Matrix rHat = result.getRelations(s, w);
-						obj += sparseSquaredFrobeniusNormOfDiff(r, rHat)
-								/ result.getRelationVariance(s, w);
-					}
-					Matrix fHat = times(result.getLatentFeatures(s),
-							result.getNormalFeatureMap(s));
-					obj += squaredFrobeniusNorm(minus(
-							data.getNormalFeatures(s), fHat))
-							/ result.getFeatureVariance(s);
-					obj += Math.log(result.getFeatureVariance(s))
-							* fHat.numRows() * fHat.numColumns();
-				}
+			{
+				double obj = calcObj(data, result);
+
 				System.out.println("after latent features neg llh=" + obj);
+				System.out.println();
 			}
 
 			// update variances
@@ -289,7 +240,7 @@ public final class CollectiveMatrixFactorization {
 						/ (n * dNorm);
 				result.setFeatureVariance(s, sigma2);
 
-				for (int w = s + 1; w < nEntities; w++) {
+				for (int w = s; w < nEntities; w++) {
 					Matrix r = data.getRelations(s, w);
 					if (r == null)
 						continue;
@@ -302,26 +253,10 @@ public final class CollectiveMatrixFactorization {
 				}
 			}
 
-			{ // assume no bernoulli features
-				double obj = 0; // negative log likelihood
-				for (int s = 0; s < nEntities; s++) {
-					for (int w = s; w < nEntities; w++) {
-						Matrix r = data.getRelations(s, w);
-						if (r == null)
-							continue;
-						Matrix rHat = result.getRelations(s, w);
-						obj += sparseSquaredFrobeniusNormOfDiff(r, rHat)
-								/ result.getRelationVariance(s, w);
-					}
-					Matrix fHat = times(result.getLatentFeatures(s),
-							result.getNormalFeatureMap(s));
-					obj += squaredFrobeniusNorm(minus(
-							data.getNormalFeatures(s), fHat))
-							/ result.getFeatureVariance(s);
-					obj += Math.log(result.getFeatureVariance(s))
-							* fHat.numRows() * fHat.numColumns();
-				}
+			{
+				double obj = calcObj(data, result);
 				System.out.println("after all neg llh=" + obj);
+				System.out.println();
 			}
 
 			if (saveIntermediate)
@@ -332,6 +267,44 @@ public final class CollectiveMatrixFactorization {
 		}
 
 		return result;
+	}
+
+	// assumes no bernoulli features
+	static double calcObj(CollectiveMatrixFactorizationDataset data,
+			CollectiveMatrixFactorizationResult result) {
+		int nEntities = data.getNumEntities();
+		double obj = 0; // negative log likelihood
+		for (int s = 0; s < nEntities; s++) {
+			for (int w = s; w < nEntities; w++) {
+				Matrix r = data.getRelations(s, w);
+				if (r == null)
+					continue;
+				Matrix rHat = result.getRelations(s, w);
+				double sse = sparseSquaredFrobeniusNormOfDiff(r, rHat);
+				double temp = sse / result.getRelationVariance(s, w);
+				obj += temp;
+				System.out.println("raw rel sse " + s + w + " = " + sse);
+				System.out.println("rel sse " + s + w + "=" + temp);
+
+				double temp2 = Math.log(result.getRelationVariance(s, w))
+						* data.getNumObserved(s, w);
+				obj += temp2;
+				System.out.println("var penalty " + s + w + "=" + temp2);
+			}
+			Matrix fHat = times(result.getLatentFeatures(s),
+					result.getNormalFeatureMap(s));
+			double temp1 = squaredFrobeniusNorm(minus(
+					data.getNormalFeatures(s), fHat))
+					/ result.getFeatureVariance(s);
+			double temp2 = Math.log(result.getFeatureVariance(s))
+					* fHat.numRows() * fHat.numColumns();
+			if (!Double.isNaN(temp1) && !Double.isNaN(temp2)) {
+				obj += temp1 + temp2;
+				System.out.println("feat sse " + s + "=" + temp1);
+				System.out.println("var penalty " + s + "=" + temp2);
+			}
+		}
+		return obj;
 	}
 
 	public static void writeLatentFeatures(

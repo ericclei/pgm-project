@@ -12,4 +12,4 @@ R.k.l.test - non-sparse relation matrix between entities k and l;
 has exactly the entries missing from the training data; 
 rating of 0 indicates that the entry was used for training
 
-F.k - non-sparse feature matrix (n x d) for entity k; from normal distribution
+F.k - non-sparse feature matrix (n x d) for entity k

@@ -8,7 +8,7 @@ import java.io.PrintWriter;
 public class test_imc {
     public static void main(String[] args) {
         String directory = "Data/IMC/";
-        DataGeneDisease mfTrain = new DataGeneDisease(directory, true);
+        DataGeneDisease mfTrain = new DataGeneDisease(directory, true, true);
         int latentDim = 3;
         double stepSize = 1e-4;
         double regCoef = .1;

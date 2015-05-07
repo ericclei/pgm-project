@@ -4,16 +4,18 @@ import no.uib.cipr.matrix.Matrix;
 
 public class GeneTestCollective {
 	public static void main(String[] args) {
+		boolean useFeatures = false;
 		CollectiveMatrixFactorizationDataset train = new DataGeneDisease(
-				"Data/IMC/", true);
+				"Data/IMC/", true, useFeatures);
 		CollectiveMatrixFactorizationDataset test = new DataGeneDisease(
-				"Data/IMC/", false);
+				"Data/IMC/", false, useFeatures);
+		System.out.println("useFeatures=" + useFeatures);
 		int latentDim = 5;
 		double stepTransform = 1e-6;
 		double stepLatentFromFeatures = 1e-6;
-		double stepLatentFromRelations = 1e-4;
-		int maxIterOuter = 10;
-		int maxIterInner = 10;
+		double stepLatentFromRelations = 1e-5;
+		int maxIterOuter = 8;
+		int maxIterInner = 5;
 
 		System.out.println("starting");
 		CollectiveMatrixFactorizationResult featuresResult = CollectiveMatrixFactorization

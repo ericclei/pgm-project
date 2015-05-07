@@ -23,7 +23,7 @@ fin.close()
 
 num_one = len(done)
 
-while len(done) < num_one:
+while len(done) < 2*num_one:
 	num = random.randint(0, num_genes * num_diseases - 1)
 	if num in done:
 		continue

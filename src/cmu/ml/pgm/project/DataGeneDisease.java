@@ -84,14 +84,21 @@ class DataGeneDisease implements CollectiveMatrixFactorizationDataset {
 		return iFeatureSize;
 	}
 
-	public DataGeneDisease(String directory, boolean isTraining) {
+	public DataGeneDisease(String directory, boolean isTraining,
+			boolean useFeatures) {
 		try {
 			BufferedReader summaryIn = new BufferedReader(new FileReader(
 					directory + "info"));
 			numUsers = Integer.parseInt(summaryIn.readLine().split(" ")[0]);
 			numItems = Integer.parseInt(summaryIn.readLine().split(" ")[0]);
-			uFeatureSize = Integer.parseInt(summaryIn.readLine().split(" ")[0]);
-			iFeatureSize = Integer.parseInt(summaryIn.readLine().split(" ")[0]);
+			if (useFeatures) {
+				uFeatureSize = Integer
+						.parseInt(summaryIn.readLine().split(" ")[0]);
+				iFeatureSize = Integer
+						.parseInt(summaryIn.readLine().split(" ")[0]);
+			} else {
+				uFeatureSize = iFeatureSize = 0;
+			}
 			summaryIn.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -99,10 +106,11 @@ class DataGeneDisease implements CollectiveMatrixFactorizationDataset {
 		}
 
 		uFeatureMatrix = new DenseMatrix(numUsers, uFeatureSize);
-		initializeUserMatrix(directory + "gene_features.csv");
-
 		iFeatureMatrix = new DenseMatrix(numItems, iFeatureSize);
-		initializeItemMatrix(directory + "disease_features.csv");
+		if (useFeatures) {
+			initializeUserMatrix(directory + "gene_features.csv");
+			initializeItemMatrix(directory + "disease_features.csv");
+		}
 
 		relationMatrix = new LinkedSparseMatrix(numUsers, numItems);
 		trainingData = new ArrayList<Pair>();
