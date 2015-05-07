@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
-class MatrixFactorizationMovieLens implements
+public class MatrixFactorizationMovieLens implements
 		CollectiveMatrixFactorizationDataset {
 	private int datasetType;
 	private DenseMatrix uFeatureMatrix;
