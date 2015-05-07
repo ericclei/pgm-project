@@ -10,7 +10,7 @@ import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.Matrix;
 import no.uib.cipr.matrix.sparse.LinkedSparseMatrix;
 
-class DataGeneDisease implements CollectiveMatrixFactorizationDataset {
+public class DataGeneDisease implements CollectiveMatrixFactorizationDataset {
 	private DenseMatrix uFeatureMatrix;
 	private DenseMatrix iFeatureMatrix;
 	private LinkedSparseMatrix relationMatrix;

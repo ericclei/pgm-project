@@ -1,6 +1,8 @@
-package cmu.ml.pgm.project;
+package cmu.ml.pgm.project.experiments;
 
 import java.io.PrintWriter;
+
+import cmu.ml.pgm.project.DataGeneDisease;
 
 /**
  * Created by dexter on 5/2/15.

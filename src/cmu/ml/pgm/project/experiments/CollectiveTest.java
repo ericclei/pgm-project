@@ -1,5 +1,6 @@
-package cmu.ml.pgm.project;
+package cmu.ml.pgm.project.experiments;
 
+import cmu.ml.pgm.project.*;
 import no.uib.cipr.matrix.Matrix;
 
 public class CollectiveTest {

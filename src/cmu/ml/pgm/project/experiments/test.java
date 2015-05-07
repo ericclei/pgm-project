@@ -1,9 +1,10 @@
-package cmu.ml.pgm.project;
+package cmu.ml.pgm.project.experiments;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
+import cmu.ml.pgm.project.*;
 import no.uib.cipr.matrix.Matrix;
 //import jdistlib.Wishart;
 
