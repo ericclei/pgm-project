@@ -14,17 +14,35 @@ import static cmu.ml.pgm.project.MatrixMethods.*;
  * @author eric
  *
  */
-public class SyntheticDataset2Relations implements CollectiveMatrixFactorizationDataset {
+public class SyntheticDataset2Relations implements
+		CollectiveMatrixFactorizationDataset {
 
-	private Matrix f1, f2, f3, r12, r13;
+	private Matrix f1Normal, f2Normal, f3Normal, f1Bernou, f2Bernou, f3Bernou,
+			r12, r13;
 	private final int N_ENTITIES = 3;
 	private final int[] N = { 1000, 1000, 1000 };
-	private final int[] D = { 100, 100, 100 };
+	private final int[] D_NORMAL = { 50, 50, 50 };
+	private final int[] D_BERNOU = { 50, 50, 50 };
 	private final int N_OBS_R12 = 50000;
 	private final int N_OBS_R13 = 50000;
 
-	public SyntheticDataset2Relations(String f1Path, String f2Path, String f3Path,
-			String r12Path, String r13Path, boolean isSparse) {
+	/**
+	 * 
+	 * @param f1NormalPath
+	 * @param f2NormalPath
+	 * @param f3NormalPath
+	 * @param f1BernouPath
+	 * @param f2BernouPath
+	 * @param f3BernouPath
+	 * @param r12Path
+	 * @param r13Path
+	 * @param isSparse
+	 *            whether relations are sparse
+	 */
+	public SyntheticDataset2Relations(String f1NormalPath, String f2NormalPath,
+			String f3NormalPath, String f1BernouPath, String f2BernouPath,
+			String f3BernouPath, String r12Path, String r13Path,
+			boolean isSparse) {
 		if (isSparse) {
 			r12 = new LinkedSparseMatrix(N[0], N[1]);
 			r13 = new LinkedSparseMatrix(N[0], N[2]);
@@ -37,12 +55,18 @@ public class SyntheticDataset2Relations implements CollectiveMatrixFactorization
 			initializeDenseMatrix(r13Path, r13);
 		}
 
-		f1 = new DenseMatrix(N[0], D[0]);
-		f2 = new DenseMatrix(N[1], D[1]);
-		f3 = new DenseMatrix(N[2], D[2]);
-		initializeDenseMatrix(f1Path, f1);
-		initializeDenseMatrix(f2Path, f2);
-		initializeDenseMatrix(f3Path, f3);
+		f1Normal = new DenseMatrix(N[0], D_NORMAL[0]);
+		f2Normal = new DenseMatrix(N[1], D_NORMAL[1]);
+		f3Normal = new DenseMatrix(N[2], D_NORMAL[2]);
+		initializeDenseMatrix(f1NormalPath, f1Normal);
+		initializeDenseMatrix(f2NormalPath, f2Normal);
+		initializeDenseMatrix(f3NormalPath, f3Normal);
+		f1Bernou = new LinkedSparseMatrix(N[0], D_BERNOU[0]);
+		f2Bernou = new LinkedSparseMatrix(N[1], D_BERNOU[1]);
+		f3Bernou = new LinkedSparseMatrix(N[2], D_BERNOU[2]);
+		initializeSparseMatrix(f1BernouPath, f1Bernou);
+		initializeSparseMatrix(f2BernouPath, f2Bernou);
+		initializeSparseMatrix(f3BernouPath, f3Bernou);
 	}
 
 	void initializeDenseMatrix(String filename, Matrix r) {
@@ -90,7 +114,8 @@ public class SyntheticDataset2Relations implements CollectiveMatrixFactorization
 
 	@Override
 	public Matrix getRelations(int s, int t) {
-		if (s == t) return null;
+		if (s == t)
+			return null;
 		assert 0 <= s && s <= 2;
 		assert 0 <= t && t <= 2;
 		if (s == 0) {
@@ -114,17 +139,21 @@ public class SyntheticDataset2Relations implements CollectiveMatrixFactorization
 	@Override
 	public Matrix getBernoulliFeatures(int s) {
 		assert 0 <= s && s <= 2;
-		return new DenseMatrix(N[s], 0);
+		if (s == 0)
+			return f1Bernou;
+		if (s == 1)
+			return f2Bernou;
+		return f3Bernou;
 	}
 
 	@Override
 	public Matrix getNormalFeatures(int s) {
 		assert 0 <= s && s <= 2;
 		if (s == 0)
-			return f1;
+			return f1Normal;
 		if (s == 1)
-			return f2;
-		return f3;
+			return f2Normal;
+		return f3Normal;
 	}
 
 	@Override
@@ -136,18 +165,19 @@ public class SyntheticDataset2Relations implements CollectiveMatrixFactorization
 	@Override
 	public int getNumBernoulliFeatures(int s) {
 		assert 0 <= s && s <= 2;
-		return 0;
+		return D_BERNOU[s];
 	}
 
 	@Override
 	public int getNumNormalFeatures(int s) {
 		assert 0 <= s && s <= 2;
-		return D[s];
+		return D_NORMAL[s];
 	}
 
 	@Override
 	public int getNumObserved(int s, int t) {
-		if (s == t) return 0;
+		if (s == t)
+			return 0;
 		assert 0 <= s && s <= 2;
 		assert 0 <= t && t <= 2;
 		if (s == 0) {

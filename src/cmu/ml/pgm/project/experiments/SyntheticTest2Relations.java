@@ -7,16 +7,26 @@ public class SyntheticTest2Relations {
 
 	public static void main(String[] args) {
 		CollectiveMatrixFactorizationDataset mfTrain = new SyntheticDataset2Relations(
-				"Data/synthetic/F.1.dat", "Data/synthetic/F.2.dat",
-				"Data/synthetic/F.3.dat", "Data/synthetic/R.1.2.train.dat",
+				"Data/synthetic/F.normal.1.dat",
+				"Data/synthetic/F.normal.2.dat",
+				"Data/synthetic/F.normal.3.dat",
+				"Data/synthetic/F.bernoulli.1.dat",
+				"Data/synthetic/F.bernoulli.2.dat",
+				"Data/synthetic/F.bernoulli.3.dat",
+				"Data/synthetic/R.1.2.train.dat",
 				"Data/synthetic/R.1.3.train.dat", true);
 		int latentDim = 10;
 		double step = 1e-4;
 		int maxIterOuter = 20;
 		int maxIterInner = 10;
 		CollectiveMatrixFactorizationDataset mfTest = new SyntheticDataset2Relations(
-				"Data/synthetic/F.1.dat", "Data/synthetic/F.2.dat",
-				"Data/synthetic/F.3.dat", "Data/synthetic/R.1.2.test.dat",
+				"Data/synthetic/F.normal.1.dat",
+				"Data/synthetic/F.normal.2.dat",
+				"Data/synthetic/F.normal.3.dat",
+				"Data/synthetic/F.bernoulli.1.dat",
+				"Data/synthetic/F.bernoulli.2.dat",
+				"Data/synthetic/F.bernoulli.3.dat",
+				"Data/synthetic/R.1.2.test.dat",
 				"Data/synthetic/R.1.3.test.dat", false);
 
 		System.out.println("starting");
