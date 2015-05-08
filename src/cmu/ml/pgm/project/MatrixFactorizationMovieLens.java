@@ -7,10 +7,7 @@ import no.uib.cipr.matrix.sparse.LinkedSparseMatrix;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 public class MatrixFactorizationMovieLens implements
 		CollectiveMatrixFactorizationDataset {
@@ -346,5 +343,15 @@ public class MatrixFactorizationMovieLens implements
 	public int getNumObserved(int s, int t) {
 		if (s == t) return 0;
 		return l0Norm(relationMatrix);
+	}
+
+	@Override
+	public Matrix getFeatures(int s) {
+		return s == 0 ? uFeatureMatrix : iFeatureMatrix;
+	}
+
+	@Override
+	public List<String> getFeatureTypes(int s) {
+		return s == 0 ? uFeatureType : iFeatureType;
 	}
 }

@@ -2,6 +2,8 @@ package cmu.ml.pgm.project;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.Matrix;
@@ -133,6 +135,20 @@ public class SyntheticDataset3Relations implements CollectiveMatrixFactorization
 		if (s == 1)
 			return f2;
 		return f3;
+	}
+
+	@Override
+	public Matrix getFeatures(int s) {
+		return getNormalFeatures(s);
+	}
+
+	@Override
+	public List<String> getFeatureTypes(int s) {
+		List<String> result = new ArrayList<String>(getNumNormalFeatures(s));
+		for(int i = 0; i < getNumNormalFeatures(s); i++) {
+			result.add("c");
+		}
+		return result;
 	}
 
 	@Override
