@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
 import cmu.ml.pgm.project.*;
+import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.Matrix;
 //import jdistlib.Wishart;
 
@@ -104,33 +105,55 @@ public class test {
 		}
 
 		if (doBayesian) {
-			System.out.println("starting Bayesian");
-//			for(latentDim = 2; latentDim <= 10; latentDim++) {
-			latentDim = 5;
-			MatrixFactorizationResult bayesianResult = BayesianMatrixFactorization.factorizeMatrixWithFeatures(mfTrain, latentDim, 20, 0.1);
-			Matrix rFeatures = bayesianResult.getR();
-			System.out.println("done with features");
-			double featuresError = 0;
-			nTest = 0;
-			for (int i = 0; i < mfTest.getNumUsers(); i++)
-				for (int j = 0; j < mfTest.getNumItems(); j++) {
-					if (testR.get(i, j) != 0) {
-						nTest++;
-						featuresError += Math.pow(testR.get(i, j) - rFeatures.get(i, j), 2);
-					}
-				}
-			featuresError = Math.sqrt(featuresError / nTest);
-			System.out.printf("Dim: " + latentDim + ", RMSE Bayesian = %f\n", featuresError);
+//			System.out.println("starting Bayesian");
+////			for(latentDim = 2; latentDim <= 10; latentDim++) {
+//			latentDim = 3;
+//			MatrixFactorizationResult bayesianResult = BayesianMatrixFactorization.factorizeMatrixWithFeatures(mfTrain, latentDim, 100, 0.1);
+//			Matrix rFeatures = bayesianResult.getR();
+//			System.out.println("done with features");
+//			double featuresError = 0;
+//			nTest = 0;
+//			Matrix average = new DenseMatrix(rFeatures.numRows(), rFeatures.numColumns());
+//			for(int iter = 0; iter < bayesianResult.getU().length; iter++) {
+//				featuresError = 0;
+//				rFeatures = BayesianMatrixFactorization.matrixMult(bayesianResult.getU()[iter],
+//						BayesianMatrixFactorization.transpose(bayesianResult.getV()[iter]));
+//				average.add(rFeatures);
+//				for (int i = 0; i < mfTest.getNumUsers(); i++) {
+//					for (int j = 0; j < mfTest.getNumItems(); j++) {
+//						if (testR.get(i, j) != 0) {
+//							nTest++;
+////							featuresError += Math.pow(testR.get(i, j) - rFeatures.get(i, j), 2);
+//							featuresError += Math.pow(testR.get(i, j) - average.get(i, j) / (iter + 1), 2);
+//						}
+//					}
+//				}
+//
+//				featuresError = Math.sqrt(featuresError / nTest);
+//				System.out.printf("Dim: " + latentDim + ", RMSE Bayesian = %f\n", featuresError);
 //			}
-			try {
-				writer = new PrintWriter("output/rBayesian.txt", "UTF-8");
-				writer.println(rFeatures);
-				writer.close();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
+//			featuresError = 0;
+//			rFeatures = bayesianResult.getR();
+//			for (int i = 0; i < mfTest.getNumUsers(); i++) {
+//				for (int j = 0; j < mfTest.getNumItems(); j++) {
+//					if (testR.get(i, j) != 0) {
+//						nTest++;
+//						featuresError += Math.pow(testR.get(i, j) - rFeatures.get(i, j), 2);
+//					}
+//				}
+//			}
+//			featuresError = Math.sqrt(featuresError / nTest);
+//			System.out.printf("AVERAGE Dim: " + latentDim + ", RMSE Bayesian = %f\n", featuresError);
+////			}
+//			try {
+//				writer = new PrintWriter("output/rBayesian.txt", "UTF-8");
+//				writer.println(rFeatures);
+//				writer.close();
+//			} catch (FileNotFoundException e) {
+//				e.printStackTrace();
+//			} catch (UnsupportedEncodingException e) {
+//				e.printStackTrace();
+//			}
 		}
 //		MatrixFactorizationMovieLens mfTrain
 //				= new MatrixFactorizationMovieLens("Data/ml-1m/users.dat", "Data/ml-1m/movies.dat",

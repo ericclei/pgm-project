@@ -2,6 +2,8 @@ package cmu.ml.pgm.project;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import no.uib.cipr.matrix.DenseMatrix;
 import no.uib.cipr.matrix.Matrix;
@@ -127,6 +129,20 @@ public class SyntheticDataset1RelationNoFeatures implements
 		assert 0 <= s && s <= 1;
 		assert 0 <= t && t <= 1;
 		return N_OBS_R12;
+	}
+
+	@Override
+	public Matrix getFeatures(int s) {
+		return getNormalFeatures(s);
+	}
+
+	@Override
+	public List<String> getFeatureTypes(int s) {
+		List<String> result = new ArrayList<String>(getNumNormalFeatures(s));
+		for(int i = 0; i < result.size(); i++) {
+			result.add("c");
+		}
+		return result;
 	}
 
 }
